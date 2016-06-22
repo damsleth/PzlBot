@@ -131,8 +131,7 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
         var uptime = formatUptime(process.uptime());
 
         bot.reply(message,
-            "I'm <@" + bot.identity.name + ", bitch!",
-             ">. Ive been running for " + uptime + ".");
+            "I'm @" + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
 
     });
 
