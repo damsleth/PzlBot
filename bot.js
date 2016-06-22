@@ -40,6 +40,10 @@ controller.hears(['hello','hi','hey'],['direct_message','direct_mention','mentio
     bot.reply(message,"Hi!");
 });
 
+controller.hears(["Who's yo daddy"],['direct_message','direct_mention','mention'],function(bot,message) {
+    bot.reply(message,"Kimzter is!");
+});
+
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function(bot, message) {
     var name = message.match[1];
     controller.storage.users.get(message.user, function(err, user) {
@@ -131,7 +135,7 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
         var uptime = formatUptime(process.uptime());
 
         bot.reply(message,
-            "I'm @" + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
+            "I'm " + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
 
     });
 
@@ -158,3 +162,32 @@ controller.on('slash_command',function(bot,message) {
   // reply to slash command
   bot.replyPublic(message,'Everyone can see the results of this slash command');
 });
+
+
+
+// pizzatime!
+
+controller.hears(['pizzatime'],['ambient'],function(bot,message) {
+  bot.startConversation(message, askFlavor);
+});
+
+askFlavor = function(response, convo) {
+  convo.ask("What flavor of pizza do you want?", function(response, convo) {
+    convo.say("Awesome.");
+    askSize(response, convo);
+    convo.next();
+  });
+}
+askSize = function(response, convo) {
+  convo.ask("What size do you want?", function(response, convo) {
+    convo.say("Ok.")
+    askWhereDeliver(response, convo);
+    convo.next();
+  });
+}
+askWhereDeliver = function(response, convo) { 
+  convo.ask("So where do you want it delivered?", function(response, convo) {
+    convo.say("Smooth. Be there in a jiffy!");
+    convo.next();
+  });
+}
