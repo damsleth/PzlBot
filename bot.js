@@ -10,6 +10,7 @@ if (!process.env.SLACK_TOKEN) {
 
 //get BotKit to spawn bot
 var Botkit = require('botkit');
+var os = require('os');
 var controller = Botkit.slackbot({
  debug: false
 });
