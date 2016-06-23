@@ -40,7 +40,7 @@ controller.hears(['hello','hi','hey'],['direct_message','direct_mention','mentio
     bot.reply(message,"Hi!");
 });
 
-controller.hears(["Who's yo daddy"],['direct_message','direct_mention','mention'],function(bot,message) {
+controller.hears(["Who's yo daddy"],['direct_message','direct_mention','mention','ambient'],function(bot,message) {
     bot.reply(message,"Kimzter is!");
 });
 
@@ -166,7 +166,6 @@ controller.on('slash_command',function(bot,message) {
 
 
 // pizzatime!
-
 controller.hears(['pizzatime'],['ambient'],function(bot,message) {
   bot.startConversation(message, askFlavor);
 });
@@ -188,6 +187,25 @@ askSize = function(response, convo) {
 askWhereDeliver = function(response, convo) { 
   convo.ask("So where do you want it delivered?", function(response, convo) {
     convo.say("Smooth. Be there in a jiffy!");
+    convo.next();
+  });
+}
+
+//OKMS
+controller.hears(['okms','OKMS'],['ambient'],function(bot,message) {
+  bot.startConversation(message, okmsWho);
+});
+
+okmsWho = function(response, convo) {
+  convo.ask("OKMS... remind me again, who's that?", function(response, convo) {
+    convo.say("Aaah, right.");
+    okmsBought(response, convo);
+    convo.next();
+  });
+}
+okmsBought = function(response, convo) {
+  convo.ask("Yeah, and he bought like, a pair of QC35's at full price right?", function(response, convo) {
+    convo.say("LOL!")
     convo.next();
   });
 }
