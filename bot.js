@@ -214,5 +214,5 @@ okmsBought = function(response, convo) {
 
 //Cursing
 controller.hears(['fuck','shit','piss','cunt','faen'],['ambient'],function(bot,message) {
-  bot.reply(message.user, "Whoa whoa whoa, watch the language, @"+ message.user);
+  bot.reply(message, "Whoa whoa whoa, watch the language, @"+ message.user);
 });
