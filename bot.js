@@ -232,3 +232,22 @@ bot.reply(message,"<@"+ message.user +">, you threw a " + dice);
 controller.hears(['fuck','shit','piss','cunt','faen'],['ambient'],function(bot,message) {
     bot.reply(message, "Whoa whoa whoa, watch the language, <@"+ message.user +">");
 });
+
+
+//Generate guid
+controller.hears(['guid','generate guid','give me a guid','i need a guid'],['direct_message','direct_mention','mention','ambient'],function(bot,message){
+    var uuid = guid();
+        bot.reply(message, "I've got a fresh guid for ya, <@"+ message.user +">: "+ uuid);
+});
+
+
+// HELPERS
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
