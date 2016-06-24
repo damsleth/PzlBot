@@ -224,7 +224,7 @@ bot.reply(message,"*click*. Whew, <@"+ message.user +">, you'll live.");
 //Dice
 controller.hears("dice","ambient",function(bot,message){
 var dice = Math.floor(6*Math.random())+1;
-bot.reply(message,"<@"+ message.user +">, you threw a" + dice);
+bot.reply(message,"<@"+ message.user +">, you threw a " + dice);
 });
 
 //Cursing
