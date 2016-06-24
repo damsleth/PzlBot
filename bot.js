@@ -237,7 +237,7 @@ controller.hears(['fuck','shit','piss','cunt','faen'],['ambient'],function(bot,m
 controller.hears('insult (.*)',['direct_message','direct_mention','mention'],function(bot,message){
     var userToInsult = message.match[1];
     var badname = randomBadName();
-    bot.reply(message, "Hey <@"+userToInsult+"> , you're a "+ badname +". <@"+ message.user+"> sends his regards." )
+    bot.reply(message, "Hey "+userToInsult+", you're a "+ badname +". <@"+ message.user+"> sends his regards." )
 });
 
 
