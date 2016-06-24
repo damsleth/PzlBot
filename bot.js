@@ -1,14 +1,14 @@
 //===
-//SLACK dummy bot for botkit
+//BENDER the Puzzlepart Slack bot
 //===
 
-//test environment
+//Check if there's a slack token, if not, exit
 if (!process.env.SLACK_TOKEN) {
     console.log('Error: Specify SLACK_TOKEN in environment');
     process.exit(1);
 }
 
-//get BotKit to spawn bot
+//Spawn bot
 var Botkit = require('botkit');
 var os = require('os');
 var controller = Botkit.slackbot({
@@ -213,6 +213,14 @@ okmsBought = function(response, convo) {
 
 
 //Cursing
+//TODO: Get message.user to be the real user @, not some random ID
 controller.hears(['fuck','shit','piss','cunt','faen'],['ambient'],function(bot,message) {
-  bot.reply(message, "Whoa whoa whoa, watch the language, @"+ message.user);
+  bot.reply(message, "Whoa whoa whoa, watch the language, <@"+ message.user +">");
+});
+
+//Calculations - Work in progress (i hate regex)
+controller.hears(['calculate (/\d+\b/g) + (/\d+\b/g)'],['direct_message','direct_mention','mention'],function(bot,message) {
+    num1 = message.match[1];
+    num2 = message.match[2];
+  bot.reply(message, );
 });
