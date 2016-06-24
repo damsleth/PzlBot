@@ -142,7 +142,7 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
 function formatUptime(uptime) {
     var unit = 'second';
     if (uptime > 60) {
-        uptime = uptime / 60;
+        uptime = Math.round(uptime / 60);
         unit = 'minute';
     }
     if (uptime > 60) {
@@ -210,10 +210,25 @@ okmsBought = function(response, convo) {
   });
 }
 
+//Russian roulette
+controller.hears("russian roulette","ambient",function(bot,message){
+var roulette = Math.floor(6*Math.random())+1;
+if(roulette == 1){
+bot.reply(message,"*BANG*, <@"+ message.user +">, you're dead!");
+}
+else{
+bot.reply(message,"*click*. Whew, <@"+ message.user +">, you'll live.");
+}
+});
 
+//Dice
+controller.hears("dice","ambient",function(bot,message){
+var dice = Math.floor(6*Math.random())+1;
+bot.reply(message,"<@"+ message.user +">, you threw a" + dice);
+});
 
 //Cursing
 //TODO: Get message.user to be the real user @, not some random ID
 controller.hears(['fuck','shit','piss','cunt','faen'],['ambient'],function(bot,message) {
-  bot.reply(message, "Whoa whoa whoa, watch the language, <@"+ message.user +">");
+    bot.reply(message, "Whoa whoa whoa, watch the language, <@"+ message.user +">");
 });
