@@ -11,6 +11,7 @@ if (!process.env.SLACK_TOKEN) {
 //Spawn bot
 var Botkit = require('botkit');
 var os = require('os');
+var http = require('http');
 var controller = Botkit.slackbot({
     debug: false
 });
@@ -30,7 +31,10 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
     });
 });
 
-
+//Keepalive, else the dyno will fall asleep after some minutes.
+setInterval(function() {
+    http.get("http://pzlbot.herokuapp.com");
+}, 300000);
 
 //===
 //bot commands
