@@ -235,7 +235,7 @@ controller.hears("dice", "ambient", function (bot, message) {
 });
 
 
-//Throw Dice
+//Battery nagging
 controller.hears("batteries ", "ambient", function (bot, message) {
     bot.reply(message, "Oh my god stop whining about those god damn batteries!");
 });
