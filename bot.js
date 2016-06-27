@@ -235,6 +235,11 @@ controller.hears("dice", "ambient", function (bot, message) {
 });
 
 
+//Throw Dice
+controller.hears("batteries ", "ambient", function (bot, message) {
+    bot.reply(message, "Oh my god stop whining about those god damn batteries!");
+});
+
 //Catch Cursing
 controller.hears(['fuck', 'shit', 'piss', 'cunt', 'faen', 'cocksucker', 'motherfucker', 'mother fucker'], ['ambient'], function (bot, message) {
     bot.reply(message, "Whoa, watch the language there, <@" + message.user + ">");
