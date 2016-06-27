@@ -5,3 +5,7 @@ Right now his capabilities are
 * "Ordering pizza" (pizzatime!)
 * Catching cusswords
 * Calling you what you want ("who am i" / "call me")
+* Generating guids ("guid!", "I need a guid")
+* Throwing dice ("dice")
+* Playing russian roulette ("russian roulette")
+* Insulting others ("@bender insult *") with an insult-array
