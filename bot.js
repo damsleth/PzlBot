@@ -225,13 +225,13 @@ controller.hears("russian roulette on (.*)", "ambient", function (bot, message) 
 //Slap user
 controller.hears("slap (.*)", "ambient", function (bot, message) {
     var userToSlap = message.match[1];
-    bot.reply(message, "*_slaps <@" + userToSlap + "> around a bit with a big trout_*");
+    bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
 
 //Kick user
 controller.hears("kick (.*)", "direct_message,direct_mention,mention", function (bot, message) {
     var user = message.match[1];
-    bot.reply(message, "/kick <@" + user + ">");
+    bot.reply(message, "/kick " + user);
 });
 
 //Throw Dice
