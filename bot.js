@@ -211,27 +211,21 @@ controller.hears("russian roulette", "ambient", function (bot, message) {
 });
 
 //Russian roulette by proxy
-controller.hears("russian roulette on (.*)", "ambient", function (bot, message) {
+controller.hears("shoot (.*)", "ambient", function (bot, message) {
     var userToShoot = message.match[1];
     var roulette = Math.floor(6 * Math.random()) + 1;
     if (roulette == 1) {
-        bot.reply(message, "*BANG*, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
+        bot.reply(message, "**BANG**, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
     }
     else {
-        bot.reply(message, "*click*. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
+        bot.reply(message, "**click**. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
     }
 });
 
 //Slap user
 controller.hears("slap (.*)", "ambient", function (bot, message) {
     var userToSlap = message.match[1];
-    bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
-});
-
-//Kick user
-controller.hears("kick (.*)", "direct_message,direct_mention,mention", function (bot, message) {
-    var user = message.match[1];
-    bot.reply(message, "/kick " + user);
+    bot.reply(message, "**_slaps " + userToSlap + " around a bit with a big trout_**");
 });
 
 //Throw Dice
@@ -241,7 +235,7 @@ controller.hears("dice", "ambient", function (bot, message) {
 });
 
 //Throw two Dice
-controller.hears("two dice", "ambient", function (bot, message) {
+controller.hears("dices", "ambient", function (bot, message) {
     var dice1 = Math.floor(6 * Math.random()) + 1;
     var dice2 = Math.floor(6 * Math.random()) + 1;
     bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
