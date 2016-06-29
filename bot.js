@@ -1,5 +1,5 @@
 //===
-//BENDER the Puzzlepart Slack bot
+//BENDER the Pzl Slack bot v1.0 June 2016
 //===
 
 //Check if there's a slack token, if not, exit
@@ -19,20 +19,20 @@ var bot = controller.spawn({
     token: process.env.SLACK_TOKEN
 });
 
-// start Slack RTM
+//Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
     // handle errors...
 });
 
-//prepare the webhook
+//Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
     controller.createWebhookEndpoints(webserver, bot, function () {
-        // handle errors...
+        // handle errors, or nah.
     });
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
-setInterval(function() {
+setInterval(function () {
     http.get("http://pzlbot.herokuapp.com");
 }, 300000);
 
@@ -49,7 +49,6 @@ controller.hears(['hello', 'hi', 'hey'], ['direct_message', 'direct_mention', 'm
 controller.hears(["Who's yo daddy"], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
     bot.reply(message, "Kimzter is!");
 });
-
 
 //Call me "name"
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
@@ -82,15 +81,15 @@ controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention
                             {
                                 pattern: 'yes',
                                 callback: function (response, convo) {
-                                    // since no further messages are queued after this,
-                                    // the conversation will end naturally with status == 'completed'
+                                    //Since no further messages are queued after this,
+                                    //The conversation will end naturally with status == 'completed'
                                     convo.next();
                                 }
                             },
                             {
                                 pattern: 'no',
                                 callback: function (response, convo) {
-                                    // stop the conversation. this will cause it to end with status == 'stopped'
+                                    //Stop the conversation. this will cause it to end with status == 'stopped'
                                     convo.stop();
                                 }
                             },
@@ -105,7 +104,7 @@ controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention
 
                         convo.next();
 
-                    }, { 'key': 'nickname' }); // store the results in a field called nickname
+                    }, { 'key': 'nickname' }); //Store the results in a field called nickname
 
                     convo.on('end', function (convo) {
                         if (convo.status == 'completed') {
@@ -126,8 +125,8 @@ controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention
 
 
                         } else {
-                            // this happens if the conversation ended prematurely for some reason
-                            bot.reply(message, 'OK, nevermind!');
+                            //This happens if the conversation ended prematurely for some reason
+                            bot.reply(message, 'OK, whatever then!');
                         }
                     });
                 }
@@ -149,31 +148,13 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
 
     });
 
-function formatUptime(uptime) {
-    var unit = 'second';
-    if (uptime > 60) {
-        uptime = Math.round(uptime / 60);
-        unit = 'minute';
-    }
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'hour';
-    }
-    if (uptime != 1) {
-        unit = unit + 's';
-    }
-    uptime = uptime + ' ' + unit;
-    return uptime;
-}
-
-
 controller.on('slash_command', function (bot, message) {
-    // reply to slash command
+    //Reply to slash command
     bot.replyPublic(message, 'Everyone can see the results of this slash command');
 });
 
 
-// Order Pizza
+//Order Pizza
 controller.hears(['pizzatime'], ['ambient'], function (bot, message) {
     bot.startConversation(message, askFlavor);
 });
@@ -199,7 +180,6 @@ askWhereDeliver = function (response, convo) {
     });
 }
 
-
 //Insult OKMS
 controller.hears(['okms', 'OKMS'], ['ambient'], function (bot, message) {
     bot.startConversation(message, okmsWho);
@@ -219,7 +199,6 @@ okmsBought = function (response, convo) {
     });
 }
 
-
 //Russian roulette
 controller.hears("russian roulette", "ambient", function (bot, message) {
     var roulette = Math.floor(6 * Math.random()) + 1;
@@ -231,6 +210,29 @@ controller.hears("russian roulette", "ambient", function (bot, message) {
     }
 });
 
+//Russian roulette by proxy
+controller.hears("russian roulette on (.*)", "ambient", function (bot, message) {
+    var userToShoot = message.match[1];
+    var roulette = Math.floor(6 * Math.random()) + 1;
+    if (roulette == 1) {
+        bot.reply(message, "*BANG*, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
+    }
+    else {
+        bot.reply(message, "*click*. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
+    }
+});
+
+//Slap user
+controller.hears("slap (.*)", "ambient", function (bot, message) {
+    var userToSlap = message.match[1];
+    bot.reply(message, "*_slaps <@" + userToSlap + "> around a bit with a big trout_*");
+});
+
+//Kick user
+controller.hears("kick (.*)", "direct_message,direct_mention,mention", function (bot, message) {
+    var user = message.match[1];
+    bot.reply(message, "/kick <@" + user + ">");
+});
 
 //Throw Dice
 controller.hears("dice", "ambient", function (bot, message) {
@@ -238,9 +240,15 @@ controller.hears("dice", "ambient", function (bot, message) {
     bot.reply(message, "<@" + message.user + ">, you threw a " + dice);
 });
 
+//Throw two Dice
+controller.hears("two dice", "ambient", function (bot, message) {
+    var dice1 = Math.floor(6 * Math.random()) + 1;
+    var dice2 = Math.floor(6 * Math.random()) + 1;
+    bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
+});
 
 //Battery nagging
-controller.hears("batteries ", "ambient", function (bot, message) {
+controller.hears("batteries", "ambient", function (bot, message) {
     bot.reply(message, "Oh my god stop whining about those god damn batteries!");
 });
 
@@ -249,14 +257,12 @@ controller.hears(['fuck', 'shit', 'piss', 'cunt', 'faen', 'cocksucker', 'motherf
     bot.reply(message, "Whoa, watch the language there, <@" + message.user + ">");
 });
 
-
 //Insult user
 controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var userToInsult = message.match[1];
     var badname = randomBadName();
-    bot.reply(message, "Hey " + userToInsult + ", you're a " + badname + ". <@" + message.user + "> sends his regards.")
+    bot.reply(message, "Hey " + userToInsult + ", you" + badname + ". <@" + message.user + "> sends his regards.")
 });
-
 
 //Generate guid
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
@@ -264,12 +270,13 @@ controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], [
     bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
 });
 
+
 //======
 // HELPERS
 //======
 
 
-//generate guid
+//Generate guid
 function guid() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
@@ -280,8 +287,37 @@ function guid() {
         s4() + '-' + s4() + s4() + s4();
 }
 
-//random bad name
+//Random bad name
 function randomBadName() {
-    var badnames = ["cunt", "dickhead", "twat", "piece of shit", "cockmongler", "very very stupid individual", "dweeb"];
+    var badnames = ["'re a cunt",
+        "'re a dickhead",
+        "'re a twat",
+        "'re a piece of shit",
+        "'re a cockmongler",
+        "'re a very very stupid individual",
+        "'re a dweeb",
+        "'re a moron",
+        " should go work for Tata Consulting",
+        "'re an inspiration for birth control",
+        " should take a shower",
+        "'re adopted!"];
     return badnames[Math.floor(badnames.length * Math.random())];
+}
+
+//Format uptime
+function formatUptime(uptime) {
+    var unit = 'second';
+    if (uptime > 60) {
+        uptime = Math.round(uptime / 60);
+        unit = 'minute';
+    }
+    if (uptime > 60) {
+        uptime = uptime / 60;
+        unit = 'hour';
+    }
+    if (uptime != 1) {
+        unit = unit + 's';
+    }
+    uptime = uptime + ' ' + unit;
+    return uptime;
 }
