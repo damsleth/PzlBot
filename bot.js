@@ -215,17 +215,17 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
     var userToShoot = message.match[1];
     var roulette = Math.floor(6 * Math.random()) + 1;
     if (roulette == 1) {
-        bot.reply(message, "**BANG**, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
+        bot.reply(message, "*BANG*, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
     }
     else {
-        bot.reply(message, "**click**. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
+        bot.reply(message, "*click*. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
     }
 });
 
 //Slap user
 controller.hears("slap (.*)", "ambient", function (bot, message) {
     var userToSlap = message.match[1];
-    bot.reply(message, "**_slaps " + userToSlap + " around a bit with a big trout_**");
+    bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
 
 //Throw Dice
