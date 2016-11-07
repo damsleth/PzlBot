@@ -235,7 +235,7 @@ controller.hears("dice", "ambient", function (bot, message) {
 });
 
 //Throw two Dice
-controller.hears("dices", "ambient", function (bot, message) {
+controller.hears("dices", ["ambient", "direct_message"], function (bot, message) {
     var dice1 = Math.floor(6 * Math.random()) + 1;
     var dice2 = Math.floor(6 * Math.random()) + 1;
     bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
@@ -254,7 +254,7 @@ controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'],
 });
 
 //Generate guid
-controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
+controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var uuid = guid();
     bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
 });
@@ -313,5 +313,5 @@ function formatUptime(uptime) {
 
 //Is Numeric
 function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
+    return !isNaN(parseFloat(n)) && isFinite(n);
 }
