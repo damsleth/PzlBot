@@ -139,7 +139,7 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
     'direct_message,direct_mention,mention', function (bot, message) {
 
         var hostname = os.hostname();
-        var uptime = formatUptime(process.uptime());
+        var uptime = helpers.formatUptime(process.uptime());
 
         bot.reply(message,
             "I'm " + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
