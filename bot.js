@@ -67,7 +67,7 @@ controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_men
 });
 
 //Return name from storage
-controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['what is my name', 'who am i','whats my name'], 'direct_message,direct_mention,mention', function (bot, message) {
 
     controller.storage.users.get(message.user, function (err, user) {
         if (user && user.name) {
@@ -235,7 +235,7 @@ controller.hears("dice", "ambient", function (bot, message) {
 });
 
 //Throw two Dice
-controller.hears("dices", ["ambient", "direct_message"], function (bot, message) {
+controller.hears("two dice", ["ambient", "direct_message"], function (bot, message) {
     var dice1 = Math.floor(6 * Math.random()) + 1;
     var dice2 = Math.floor(6 * Math.random()) + 1;
     bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
@@ -244,6 +244,12 @@ controller.hears("dices", ["ambient", "direct_message"], function (bot, message)
 //Battery nagging
 controller.hears("batteries", "ambient", function (bot, message) {
     bot.reply(message, "Oh my god stop whining about those god damn batteries!");
+});
+
+//Pizza Party
+controller.hears(["pizza party", "pizzaparty"], "ambient", function (bot, message) {
+    bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
+    bot.reply(message, "/giphy pizzaparty");
 });
 
 //Insult user
@@ -257,6 +263,11 @@ controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'],
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var uuid = guid();
     bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
+});
+
+// 8 ball
+controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, eightBall());
 });
 
 
@@ -291,6 +302,32 @@ function randomBadName() {
         " should take a shower",
         "'re adopted!"];
     return badnames[Math.floor(badnames.length * Math.random())];
+}
+
+//Random 8ball answers
+function eightBall() {
+    var answers = [
+        "It is certain",
+        "It is decidedly so",
+        "Without a doubt",
+        "Yes, definitely",
+        "You may rely on it",
+        "As I see it, yes",
+        "Most likely",
+        "Outlook good",
+        "Yes",
+        "Signs point to yes",
+        "Reply hazy try again",
+        "Ask again later",
+        "Better not tell you now",
+        "Cannot predict now",
+        "Concentrate and ask again",
+        "Don't count on it",
+        "My reply is no",
+        "My sources say no",
+        "Outlook not so good",
+        "Very doubtful"];
+        return answers[Math.floor(answers.length * Math.random())];
 }
 
 //Format uptime
