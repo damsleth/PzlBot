@@ -220,6 +220,32 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
     }
 });
 
+
+request("http://api.giphy.com/v1/gifs/search?q=fail&api_key=dc6zaTOxFJmzC", function (error, response, body){
+      var data = JSON.parse(body);
+      var max = data.data.length;
+      var min = 0;
+      var randomNumber = Math.floor(Math.random() * (max - min)) + min;
+      gifUrl = data.data[randomNumber].images.downsized.url;
+      replyMessage = gifUrl;
+
+      bot.reply(message, replyMessage);
+    });
+
+//GIPHY
+controller.hears("giphy (.*)", "ambient", function (bot, message) {
+    var query = message.match[1];
+request("http://api.giphy.com/v1/gifs/search?q="+query+"&api_key=dc6zaTOxFJmzC", function (error, response, body){
+      var data = JSON.parse(body);
+      var max = data.data.length;
+      var min = 0;
+      var randomNumber = Math.floor(Math.random() * (max - min)) + min;
+      gifUrl = data.data[randomNumber].images.downsized.url;
+      replyMessage = gifUrl;
+      bot.reply(message, replyMessage);
+    });
+});
+
 //Slap user
 controller.hears("slap (.*)", "ambient", function (bot, message) {
     var userToSlap = message.match[1];
