@@ -223,7 +223,7 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 
 
 //GIPHY
-controller.hears("giphy (.*)", "ambient", function (bot, message) {
+controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var query = message.match[1];
 request("http://api.giphy.com/v1/gifs/search?q="+query+"&api_key=dc6zaTOxFJmzC", function (error, response, body){
       var data = JSON.parse(body);
