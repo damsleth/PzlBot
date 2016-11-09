@@ -49,7 +49,7 @@ controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is y
     bot.reply(message, "Kimzter is!");
 });
 
-//Say Hi
+//Mirror mirror
 controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, "Famed is thy beauty, <@" + message.user + ">. But hold, a lovely maid I see. Rags cannot hide her gentle grace. Alas, Nina is more fair than thee.");
 });
