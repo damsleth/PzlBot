@@ -1,5 +1,6 @@
 //===
-//BENDER the Pzl Slack bot v1.0 June 2016
+// BENDER the Pzl Slack bot v1.0 June 2016
+// Last updated 9.11.2016 by @damsleth
 //===
 
 //Check if there's a slack token, if not, exit
@@ -12,12 +13,9 @@ if (!process.env.SLACK_TOKEN) {
 var Botkit = require('botkit');
 var os = require('os');
 var http = require('http');
-var controller = Botkit.slackbot({
-    debug: false
-});
-var bot = controller.spawn({
-    token: process.env.SLACK_TOKEN
-});
+var controller = Botkit.slackbot({ debug: false });
+var bot = controller.spawn({ token: process.env.SLACK_TOKEN });
+var helpers = require("./lib/helpers.js");
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -67,7 +65,7 @@ controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_men
 });
 
 //Return name from storage
-controller.hears(['what is my name', 'who am i','whats my name'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_message,direct_mention,mention', function (bot, message) {
 
     controller.storage.users.get(message.user, function (err, user) {
         if (user && user.name) {
@@ -249,106 +247,22 @@ controller.hears("batteries", "ambient", function (bot, message) {
 //Pizza Party
 controller.hears(["pizza party", "pizzaparty"], "ambient", function (bot, message) {
     bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
-    bot.reply(message, "/giphy pizzaparty");
 });
 
 //Insult user
 controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var userToInsult = message.match[1];
-    var badname = randomBadName();
+    var badname = helpers.randomBadName();
     bot.reply(message, "Hey " + userToInsult + ", you" + badname + ". <@" + message.user + "> sends his regards.")
 });
 
 //Generate guid
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var uuid = guid();
+    var uuid = helpers.guid();
     bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
 });
 
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, eightBall());
+    bot.reply(message, helpers.eightBall());
 });
-
-
-//======
-// HELPERS
-//======
-
-
-//Generate guid
-function guid() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
-}
-
-//Random bad name
-function randomBadName() {
-    var badnames = ["'re a cunt",
-        "'re a dickhead",
-        "'re a twat",
-        "'re a piece of shit",
-        "'re a cockmongler",
-        "'re a very very stupid individual",
-        "'re a dweeb",
-        "'re a moron",
-        " should go work for Tata Consulting",
-        "'re an inspiration for birth control",
-        " should take a shower",
-        "'re adopted!"];
-    return badnames[Math.floor(badnames.length * Math.random())];
-}
-
-//Random 8ball answers
-function eightBall() {
-    var answers = [
-        "It is certain",
-        "It is decidedly so",
-        "Without a doubt",
-        "Yes, definitely",
-        "You may rely on it",
-        "As I see it, yes",
-        "Most likely",
-        "Outlook good",
-        "Yes",
-        "Signs point to yes",
-        "Reply hazy try again",
-        "Ask again later",
-        "Better not tell you now",
-        "Cannot predict now",
-        "Concentrate and ask again",
-        "Don't count on it",
-        "My reply is no",
-        "My sources say no",
-        "Outlook not so good",
-        "Very doubtful"];
-        return answers[Math.floor(answers.length * Math.random())];
-}
-
-//Format uptime
-function formatUptime(uptime) {
-    var unit = 'second';
-    if (uptime > 60) {
-        uptime = Math.round(uptime / 60);
-        unit = 'minute';
-    }
-    if (uptime > 60) {
-        uptime = uptime / 60;
-        unit = 'hour';
-    }
-    if (uptime != 1) {
-        unit = unit + 's';
-    }
-    uptime = uptime + ' ' + unit;
-    return uptime;
-}
-
-//Is Numeric
-function isNumeric(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-}
