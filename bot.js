@@ -45,8 +45,13 @@ controller.hears(['hello', 'hi', 'hey'], ['direct_message', 'direct_mention', 'm
 });
 
 //Who's yo daddy?
-controller.hears(["Who's yo daddy"], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
+controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
     bot.reply(message, "Kimzter is!");
+});
+
+//Say Hi
+controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, "Famed is thy beauty, "+message.user+". But hold, a lovely maid I see. Rags cannot hide her gentle grace. Alas, Nina is more fair than thee.");
 });
 
 //Call me "name"
@@ -225,7 +230,7 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 //GIPHY
 controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var query = message.match[1];
-    if (query){
+    if (query !== "" && query !== "undefined"){
 request("http://api.giphy.com/v1/gifs/search?q="+query+"&api_key=dc6zaTOxFJmzC", function (error, response, body){
     console.log("giphy requested with keyword "+query);
       var data = JSON.parse(body);
@@ -248,17 +253,17 @@ controller.hears("slap (.*)", "ambient", function (bot, message) {
     bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
 
+//Throw two Dice
+controller.hears("two dices", ["ambient", "direct_message"], function (bot, message) {
+    var dice1 = Math.floor(6 * Math.random()) + 1;
+    var dice2 = Math.floor(6 * Math.random()) + 1;
+    bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
+});
+
 //Throw Dice
 controller.hears("dice", "ambient", function (bot, message) {
     var dice = Math.floor(6 * Math.random()) + 1;
     bot.reply(message, "<@" + message.user + ">, you threw a " + dice);
-});
-
-//Throw two Dice
-controller.hears("two dice", ["ambient", "direct_message"], function (bot, message) {
-    var dice1 = Math.floor(6 * Math.random()) + 1;
-    var dice2 = Math.floor(6 * Math.random()) + 1;
-    bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
 });
 
 //Battery nagging
