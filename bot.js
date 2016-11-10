@@ -250,11 +250,11 @@ controller.hears("slap (.*)", "ambient", function (bot, message) {
 });
 
 //Throw two Dice
-controller.hears("two dices", ["ambient", "direct_message"], function (bot, message) {
+controller.hears(["two dices", "craps"], ["ambient","direct_message", "mention", "direct_mention"], function (bot, message) {
     var dice1 = Math.floor(6 * Math.random()) + 1;
     var dice2 = Math.floor(6 * Math.random()) + 1;
     var total = dice1+dice2;
-    bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + total);
+    bot.reply(message, "CRAPS: <@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + total);
 });
 
 //Throw Dice
