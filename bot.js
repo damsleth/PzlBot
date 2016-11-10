@@ -40,7 +40,7 @@ setInterval(function () {
 //===
 
 //Say Hi
-controller.hears(['hello ', 'hi ', 'hey '], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['hello', 'hey'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, "Hi!");
 });
 
@@ -226,19 +226,19 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 //GIPHY
 controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var query = message.match[1];
-    if (query !== "" && query !== "undefined"){
-request("http://api.giphy.com/v1/gifs/search?q="+query+"&api_key=dc6zaTOxFJmzC", function (error, response, body){
-    console.log("giphy requested with keyword "+query);
-      var data = JSON.parse(body);
-      var max = data.data.length;
-      var min = 0;
-      var randomNumber = Math.floor(Math.random() * (max - min)) + min;
-      gifUrl = data.data[randomNumber].images.downsized.url;
-      console.log("got gif with url "+gifUrl);
-      replyMessage = gifUrl;
-      bot.reply(message, replyMessage);
-    });
-    }else{
+    if (query !== "" && query !== "undefined") {
+        request("http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC", function (error, response, body) {
+            console.log("giphy requested with keyword " + query);
+            var data = JSON.parse(body);
+            var max = data.data.length;
+            var min = 0;
+            var randomNumber = Math.floor(Math.random() * (max - min)) + min;
+            gifUrl = data.data[randomNumber].images.downsized.url;
+            console.log("got gif with url " + gifUrl);
+            replyMessage = gifUrl;
+            bot.reply(message, replyMessage);
+        });
+    } else {
         bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
     }
 });
@@ -250,12 +250,12 @@ controller.hears("slap (.*)", "ambient", function (bot, message) {
 });
 
 //Throw two Dice
-controller.hears(["two dices", "craps"], ["ambient","direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
     var dice1 = Math.floor(6 * Math.random());
     var dice2 = Math.floor(6 * Math.random());
-    var name = helpers.craps(dice1,dice2);
-    var total = dice1+dice2+2;
-    bot.reply(message, "CRAPS: <@" + message.user + ">, you threw " + dice1 + " and " + dice2 + " for a total of " + total+". "+helpers.craps(dice1,dice2));
+    var name = helpers.craps(dice1, dice2);
+    var total = dice1 + dice2 + 2;
+    bot.reply(message, "CRAPS: <@" + message.user + ">, you threw " + dice1 + " and " + dice2 + " for a total of " + total + ". " + helpers.craps(dice1, dice2).toUpperCase());
 });
 
 //Throw Dice
