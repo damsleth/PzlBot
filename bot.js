@@ -49,10 +49,6 @@ controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is y
     bot.reply(message, "Kimzter is!");
 });
 
-//Mirror mirror
-controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, "Famed is thy beauty, <@" + message.user + ">. But hold, a lovely maid I see. Rags cannot hide her gentle grace. Alas, Nina is more fair than thee.");
-});
 
 //Call me "name"
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
@@ -257,7 +253,8 @@ controller.hears("slap (.*)", "ambient", function (bot, message) {
 controller.hears("two dices", ["ambient", "direct_message"], function (bot, message) {
     var dice1 = Math.floor(6 * Math.random()) + 1;
     var dice2 = Math.floor(6 * Math.random()) + 1;
-    bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + dice1 + dice2);
+    var total = dice1+dice2;
+    bot.reply(message, "<@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + total);
 });
 
 //Throw Dice
@@ -292,4 +289,9 @@ controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], [
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, helpers.eightBall());
+});
+
+//Mirror mirror
+controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, "Famed is thy beauty, <@" + message.user + ">. But hold, a lovely maid I see. Rags cannot hide her gentle grace. Alas, Nina is more fair than thee.");
 });
