@@ -251,10 +251,11 @@ controller.hears("slap (.*)", "ambient", function (bot, message) {
 
 //Throw two Dice
 controller.hears(["two dices", "craps"], ["ambient","direct_message", "mention", "direct_mention"], function (bot, message) {
-    var dice1 = Math.floor(6 * Math.random()) + 1;
-    var dice2 = Math.floor(6 * Math.random()) + 1;
-    var total = dice1+dice2;
-    bot.reply(message, "CRAPS: <@" + message.user + ">, you threw a " + dice1 + " and a " + dice2 + " for a total of " + total);
+    var dice1 = Math.floor(6 * Math.random());
+    var dice2 = Math.floor(6 * Math.random());
+    var name = helpers.craps(dice1,dice2);
+    var total = dice1+dice2+2;
+    bot.reply(message, "CRAPS: <@" + message.user + ">, you threw " + dice1 + " and " + dice2 + " for a total of " + total+". "+helpers.craps(dice1,dice2));
 });
 
 //Throw Dice
