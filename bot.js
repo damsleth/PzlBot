@@ -223,10 +223,30 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 });
 
 
+// //GIPHY
+// controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     var query = message.match[1];
+//     if (query !== "" && query !== "undefined") {
+//         request("http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC", function (error, response, body) {
+//             console.log("giphy requested with keyword " + query);
+//             var data = JSON.parse(body);
+//             var max = data.data.length;
+//             var min = 0;
+//             var randomNumber = Math.floor(Math.random() * (max - min)) + min;
+//             gifUrl = data.data[randomNumber].images.downsized.url;
+//             console.log("got gif with url " + gifUrl);
+//             replyMessage = gifUrl;
+//             bot.reply(message, replyMessage);
+//         });
+//     } else {
+//         bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
+//     }
+// });
+
 //GIPHY
 controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var query = message.match[1];
-    if (query !== "" && query !== "undefined") {
+    if (query !== "" && query !== undefined) {
         request("http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC", function (error, response, body) {
             console.log("giphy requested with keyword " + query);
             var data = JSON.parse(body);
@@ -235,7 +255,7 @@ controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], 
             var randomNumber = Math.floor(Math.random() * (max - min)) + min;
             gifUrl = data.data[randomNumber].images.downsized.url;
             console.log("got gif with url " + gifUrl);
-            replyMessage = gifUrl;
+            replyMessage = request.get(gifUrl);
             bot.reply(message, replyMessage);
         });
     } else {
