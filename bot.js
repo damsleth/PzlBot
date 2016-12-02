@@ -40,7 +40,7 @@ setInterval(function () {
 //===
 
 //Say Hi
-controller.hears(['hello', 'hey'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, "Hi!");
 });
 
@@ -264,7 +264,7 @@ controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], 
 });
 
 //Slap user
-controller.hears("slap (.*)", "ambient", function (bot, message) {
+controller.hears("slap (.*)", ['ambient','direct_mention','mention'], function (bot, message) {
     var userToSlap = message.match[1];
     bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
