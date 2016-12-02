@@ -290,7 +290,7 @@ controller.hears("batteries", "ambient", function (bot, message) {
 });
 
 //Pizza Party
-controller.hears(["pizza party", "pizzaparty"], "ambient", function (bot, message) {
+controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
     bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
 });
 
