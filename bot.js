@@ -16,7 +16,8 @@ var os = require('os');
 var http = require('http');
 var controller = Botkit.slackbot({ debug: false });
 var bot = controller.spawn({ token: process.env.SLACK_TOKEN });
-var helpers = require('./lib/helpers.js');
+var helpers = require('./lib/helpers');
+var jokes = require('./lib/jokes');
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
