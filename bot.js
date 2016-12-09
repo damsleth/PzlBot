@@ -331,44 +331,45 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
 });
 
 
+controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    console.log("requested gif, uploading to slack");
+    bot.api.files.upload({
+        file: request.get("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif"),
+        channels: message.channel,
+        filename: 'do it',
+        filetype: 'auto',
+        mimetype: "image\/gif",
+    }, function (err, res) {
+        if (err) {
+            bot.botkit.log("Failed to add gif :(", err);
+            bot.botkit.log(data);
+        }
+    });
+    console.log("successfully(?) uploaded file");
+});
+
+
+// // REQUEST VERSION
 // controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
 //     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
+//         var img = body;
 //         console.log("requested gif, uploading to slack");
-//         bot.api.files.upload({
-//             content: body,
-//             channels: message.channel,
-//             filename: 'do it',
-//             filetype: 'auto',
-//             mimetype: "image\/gif",
-//         }, function (err, res) {
-//             if (err) {
-//                 bot.botkit.log("Failed to add gif :(", err);
-//                 bot.botkit.log(data);
-//             }
+//         request.post({
+//             url: 'https://slack.com/api/files.upload',
+//             formData: {
+//                 token: slackToken,
+//                 title: "Image",
+//                 filename: "image.gif",
+//                 filetype: "auto",
+//                 channels: message.channel,
+//                 file: body,
+//             },
+//         }, function (err, response) {
+//             console.log(JSON.parse(response.body));
 //         });
 //         console.log("successfully(?) uploaded file");
 //     });
 // });
-
-controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
-        console.log("requested gif, uploading to slack");
-        request.post({
-            url: 'https://slack.com/api/files.upload',
-            formData: {
-                token: slackToken,
-                title: "Image",
-                filename: "image.gif",
-                filetype: "auto",
-                channels: message.channel,
-                file: body,
-            },
-        }, function (err, response) {
-            console.log(JSON.parse(response.body));
-        });
-        console.log("successfully(?) uploaded file");
-    });
-});
 
 //Mirror mirror
 controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
