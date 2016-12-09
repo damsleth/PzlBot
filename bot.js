@@ -269,8 +269,9 @@ controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "m
 });
 
 //SKAM
-controller.hears(["SKAM"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
-    bot.reply(message, helpers.getSKAMUpdates());
+controller.hears("SKAM",["direct_message", "mention", "direct_mention"], function (bot, message) {
+    var skamupdates = helpers.getSKAMUpdates();
+    bot.reply(message, skamupdates);
 });
 
 //Generate guid
