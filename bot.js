@@ -22,6 +22,7 @@ var Q = require('q');
 
 var Slack = require('node-slack-upload');
 var slackToken = process.env.SLACK_TOKEN;
+var slack = new Slack(slackToken);
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
