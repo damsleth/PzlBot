@@ -332,9 +332,9 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
 
 controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
-        console.log("got gif, attempting upload to slack channel \n "+message.channel);
+        console.log("got gif, attempting upload to slack channel \n ");
         slack.uploadFile({
-            file: fs.createReadStream(body),
+            content: body,
             filetype: 'post',
             title: 'doit.gif',
             initialComment: 'no comment lol',
