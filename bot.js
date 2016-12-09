@@ -18,6 +18,7 @@ var controller = Botkit.slackbot({ debug: false });
 var bot = controller.spawn({ token: process.env.SLACK_TOKEN });
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
+var q = require('q');
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -318,8 +319,9 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
-        var gifUrl = helpers.giphyUrl("friday");
-        bot.reply(message, iif +" "+ gifUrl);
+        helpers.giphyUrl("friday").then(function (gifUrl) {
+            bot.reply(message, iif + " " + gifUrl);
+        }, function (err) { console.log("failed getting gif url, reason \n" + err) });
     }
     else bot.reply(message, helpers.isItFriday());
 });

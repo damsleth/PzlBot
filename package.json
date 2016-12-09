@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "botkit": "^0.2.0"
+    "botkit": "^0.2.0",
+    "q": "^1.4.1"
   },
   "engines": {
     "node": "5.10.1"
