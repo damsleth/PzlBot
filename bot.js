@@ -319,9 +319,7 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
-        Q.fcall(helpers.giphyUrl("friday")).then(function (gifUrl) {
-            bot.reply(message, iif + " " + gifUrl);
-        }, function (err) { console.log("failed getting gif url, reason \n" + err) });
+        bot.reply(message, helpers.giphyUrl("friday"));
     }
     else bot.reply(message, helpers.isItFriday());
 });
