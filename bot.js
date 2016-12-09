@@ -262,8 +262,18 @@ controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], 
             var randomNumber = Math.floor(Math.random() * (max - min)) + min;
             gifUrl = data.data[randomNumber].images.downsized.url;
             console.log("got gif with url " + gifUrl);
-            replyMessage = request.get(gifUrl);
-            bot.reply(message, replyMessage);
+            bot.api.files.upload({
+                file: request.get(gifUrl),
+                channels: message.channel,
+                filename: query,
+                filetype: 'auto',
+                mimetype: "image\/gif",
+            }, function (err, res) {
+                if (err) {
+                    bot.botkit.log("Failed to add gif :(", err);
+                    bot.botkit.log(data);
+                }
+            });
         });
     } else {
         bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
@@ -330,7 +340,7 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
     bot.reply(message, helpers.isItFriday());
 });
 
-
+//WORKS!!!!
 controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     console.log("requested gif, uploading to slack");
     bot.api.files.upload({
@@ -349,27 +359,6 @@ controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], func
 });
 
 
-// // REQUEST VERSION
-// controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-//     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
-//         var img = body;
-//         console.log("requested gif, uploading to slack");
-//         request.post({
-//             url: 'https://slack.com/api/files.upload',
-//             formData: {
-//                 token: slackToken,
-//                 title: "Image",
-//                 filename: "image.gif",
-//                 filetype: "auto",
-//                 channels: message.channel,
-//                 file: body,
-//             },
-//         }, function (err, response) {
-//             console.log(JSON.parse(response.body));
-//         });
-//         console.log("successfully(?) uploaded file");
-//     });
-// });
 
 //Mirror mirror
 controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
