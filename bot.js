@@ -330,22 +330,55 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
     bot.reply(message, helpers.isItFriday());
 });
 
+// controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
+//         console.log("got gif, attempting upload to slack channel \n ");
+//         slack.uploadFile({
+//             content: body,
+//             filetype: 'post',
+//             title: 'doit.gif',
+//             initialComment: 'no comment lol',
+//             channels: message.channel
+//         }, function (err, data) {
+//             if (err) {
+//                 console.log("***BOMBED UPLOAD***");
+//                 console.error(err);
+//             }
+//             else {
+//                 console.log('Uploaded file details: ', data);
+//             }
+//         });
+//     });
+// });
+
+// controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     var file = fs.createWriteStream("doit.gif");
+//     http.get("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", response => {
+//         response.pipe(file);
+//         console.log(message.channel);
+
+//         bot.api.files.upload({
+//             content: data,
+//             channel: message.channel
+//         }, function (err, res) {
+//             if (err) {
+//                 bot.botkit.log("Failed to add gif :(", err);
+//                 bot.botkit.log(data);
+//             }
+//         });
+//     });
+// });
+
+
 controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
-        console.log("got gif, attempting upload to slack channel \n ");
-        slack.uploadFile({
+        bot.api.files.upload({
             content: body,
-            filetype: 'post',
-            title: 'doit.gif',
-            initialComment: 'no comment lol',
-            channels: message.channel
-        }, function (err, data) {
+            channel: message.channel
+        }, function (err, res) {
             if (err) {
-                console.log("***BOMBED UPLOAD***");
-                console.error(err);
-            }
-            else {
-                console.log('Uploaded file details: ', data);
+                bot.botkit.log("Failed to add gif :(", err);
+                bot.botkit.log(data);
             }
         });
     });
