@@ -20,6 +20,9 @@ var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var Q = require('q');
 
+var Slack = require('node-slack-upload');
+var slackToken = process.env.SLACK_TOKEN;
+
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
     // handle errors...
@@ -315,6 +318,7 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
 });
 
 // Is it friday?
+// NOT WORKING
 controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
@@ -322,6 +326,25 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
         bot.reply(message, helpers.giphyUrl("friday"));
     }
     bot.reply(message, helpers.isItFriday());
+});
+
+controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
+        slack.uploadFile({
+            file: fs.createReadStream(body),
+            filetype: 'post',
+            title: 'doit.gif',
+            initialComment: 'no comment lol',
+            channels: message.channel
+        }, function (err, data) {
+            if (err) {
+                console.error(err);
+            }
+            else {
+                console.log('Uploaded file details: ', data);
+            }
+        });
+    });
 });
 
 //Mirror mirror

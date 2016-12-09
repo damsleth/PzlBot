@@ -9,8 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "botkit": "^0.2.0",
-    "q": "^1.4.1"
+    "botkit": "^0.2.2",
+    "node-slack-upload": "^1.2.1",
+    "q": "^1.4.1",
+    "request": "^2.79.0"
   },
   "engines": {
     "node": "5.10.1"
