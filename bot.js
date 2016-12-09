@@ -374,7 +374,8 @@ controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], func
     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
         bot.api.files.upload({
             content: body,
-            channel: message.channel
+            channels: message.channel,
+            filename: 'doit.gif'
         }, function (err, res) {
             if (err) {
                 bot.botkit.log("Failed to add gif :(", err);
