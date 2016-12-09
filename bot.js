@@ -265,15 +265,15 @@ controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], 
 });
 
 //Slap user
-controller.hears("slap (.*)", ['ambient','direct_mention','mention'], function (bot, message) {
+controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], function (bot, message) {
     var userToSlap = message.match[1];
     bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
 
 //Throw two Dice
 controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
-    var dice1 = Math.floor(6 * Math.random()+1);
-    var dice2 = Math.floor(6 * Math.random()+1);
+    var dice1 = Math.floor(6 * Math.random() + 1);
+    var dice2 = Math.floor(6 * Math.random() + 1);
     var name = helpers.craps(dice1, dice2);
     var total = dice1 + dice2;
     bot.reply(message, "CRAPS: <@" + message.user + ">, you threw " + dice1 + " and " + dice2 + " for a total of " + total + ". " + helpers.craps(dice1, dice2).toUpperCase());
@@ -311,6 +311,17 @@ controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], [
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, helpers.eightBall());
+});
+
+// Is it friday?
+controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    var iif = helpers.isItFriday();
+    var iifBool = helpers.isItFriday(true);
+    if (iifBool) {
+        var gifUrl = helpers.giphyUrl("friday");
+        bot.reply(message, iif +" "+ gifUrl);
+    }
+    else bot.reply(message, helpers.isItFriday());
 });
 
 //Mirror mirror
