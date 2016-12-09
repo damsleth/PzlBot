@@ -278,7 +278,7 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
             console.log("got body, fetching bylines");
             var updates = $('.byline').text();
             console.log("got updates \n" + updates);
-            bot.reply(message, updates);
+            bot.reply(message, "LAST SKAM-UPDATES \n"+updates);
         }
     });
 });
