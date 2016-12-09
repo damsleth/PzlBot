@@ -15,15 +15,12 @@ var request = require('request');
 var os = require('os');
 var http = require('http');
 var controller = Botkit.slackbot({ debug: false });
-var bot = controller.spawn({ token: process.env.SLACK_TOKEN });
+var slackToken = process.env.SLACK_TOKEN;
+var bot = controller.spawn({ token: slackToken });
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
-var Q = require('q');
 var fs = require('fs');
-
-var Slack = require('node-slack-upload');
-var slackToken = process.env.SLACK_TOKEN;
-var slack = new Slack(slackToken);
+var cheerio = require('cheerio');
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -56,6 +53,10 @@ controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is y
     bot.reply(message, "Kimzter is!");
 });
 
+// 8 ball
+controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, helpers.eightBall());
+});
 
 //Call me "name"
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
@@ -74,7 +75,7 @@ controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_men
 });
 
 //Return name from storage
-controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['what is my name', 'who am i', 'whats my name', 'whoami'], 'direct_message,direct_mention,mention', function (bot, message) {
 
     controller.storage.users.get(message.user, function (err, user) {
         if (user && user.name) {
@@ -229,55 +230,11 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
     }
 });
 
-
-// //GIPHY
-// controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-//     var query = message.match[1];
-//     if (query !== "" && query !== "undefined") {
-//         request("http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC", function (error, response, body) {
-//             console.log("giphy requested with keyword " + query);
-//             var data = JSON.parse(body);
-//             var max = data.data.length;
-//             var min = 0;
-//             var randomNumber = Math.floor(Math.random() * (max - min)) + min;
-//             gifUrl = data.data[randomNumber].images.downsized.url;
-//             console.log("got gif with url " + gifUrl);
-//             replyMessage = gifUrl;
-//             bot.reply(message, replyMessage);
-//         });
-//     } else {
-//         bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
-//     }
-// });
-
 //GIPHY
-controller.hears("giphy (.*)", ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var query = message.match[1];
-    if (query !== "" && query !== undefined) {
-        request("http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=dc6zaTOxFJmzC", function (error, response, body) {
-            console.log("giphy requested with keyword " + query);
-            var data = JSON.parse(body);
-            var max = data.data.length;
-            var min = 0;
-            var randomNumber = Math.floor(Math.random() * (max - min)) + min;
-            gifUrl = data.data[randomNumber].images.downsized.url;
-            console.log("got gif with url " + gifUrl);
-            bot.api.files.upload({
-                file: request.get(gifUrl),
-                channels: message.channel,
-                filename: query,
-                filetype: 'auto',
-                mimetype: "image\/gif",
-            }, function (err, res) {
-                if (err) {
-                    bot.botkit.log("Failed to add gif :(", err);
-                    bot.botkit.log(data);
-                }
-            });
-        });
-    } else {
-        bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
-    }
+controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    var q = message.match[1];
+    if (q) { helpers.giphy(q, bot, message); } 
+    else { bot.reply(message, "You gotta specify a keyword for your giphy, dummy"); }
 });
 
 //Slap user
@@ -311,6 +268,12 @@ controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "m
     bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
 });
 
+//Generate guid
+controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    var uuid = helpers.guid();
+    bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
+});
+
 //Insult user
 controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var userToInsult = message.match[1];
@@ -318,24 +281,12 @@ controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'],
     bot.reply(message, "Hey " + userToInsult + ", you" + badname + ". <@" + message.user + "> sends his regards.")
 });
 
-//Generate guid
-controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var uuid = helpers.guid();
-    bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
-});
-
-// 8 ball
-controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, helpers.eightBall());
-});
-
 // Is it friday?
-// NOT WORKING
-controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['is it friday'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
-        bot.reply(message, helpers.giphyUrl("friday"));
+        helpers.giphy("friday");
     }
     bot.reply(message, helpers.isItFriday());
 });
@@ -357,8 +308,6 @@ controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], func
     });
     console.log("successfully(?) uploaded file");
 });
-
-
 
 //Mirror mirror
 controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
