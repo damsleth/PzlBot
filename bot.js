@@ -268,6 +268,11 @@ controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "m
     bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
 });
 
+//SKAM
+controller.hears(["SKAM"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    bot.reply(message, helpers.getSKAMUpdates());
+});
+
 //Generate guid
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var uuid = helpers.guid();
