@@ -271,12 +271,16 @@ controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "m
 
 //SKAM
 controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], function (bot, message) {
-    Q.fcall(helpers.getSKAMUpdates()).then(function (updates) {
-        if (updates) {
+    request('http://skam.p3.no', function (error, response, body) {
+        console.log("requesting skam.p3.no");
+        if (!error && response.statusCode == 200) {
+            var $ = cheerio.load(body);
+            console.log("got body, fetching bylines");
+            var updates = $('.byline').text();
             console.log("got updates \n" + updates);
             bot.reply(message, updates);
         }
-    }, function (err) { console.log(err) });
+    });
 });
 
 //Generate guid
