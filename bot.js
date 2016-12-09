@@ -361,7 +361,7 @@ controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], func
                 filename: "image.gif",
                 filetype: "auto",
                 channels: message.channel,
-                file: fs.createReadStream(body),
+                file: body,
             },
         }, function (err, response) {
             console.log(JSON.parse(response.body));
