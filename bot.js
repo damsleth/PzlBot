@@ -21,7 +21,6 @@ var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var fs = require('fs');
 var cheerio = require('cheerio');
-var Q = require('q');
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -272,12 +271,9 @@ controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "m
 //SKAM
 controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], function (bot, message) {
     request('http://skam.p3.no', function (error, response, body) {
-        console.log("requesting skam.p3.no");
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
-            console.log("got body, fetching bylines");
             var updates = $('.byline').text();
-            console.log("got updates \n" + updates);
             bot.reply(message, "Siste SKAM-oppdateringer \n"+updates);
         }
     });
