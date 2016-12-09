@@ -21,6 +21,7 @@ var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var fs = require('fs');
 var cheerio = require('cheerio');
+var Q = require('q');
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -233,7 +234,7 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 //GIPHY
 controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var q = message.match[1];
-    if (q) { helpers.giphy(q, bot, message); } 
+    if (q) { helpers.giphy(q, bot, message); }
     else { bot.reply(message, "You gotta specify a keyword for your giphy, dummy"); }
 });
 
@@ -269,9 +270,13 @@ controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "m
 });
 
 //SKAM
-controller.hears("SKAM",["direct_message", "mention", "direct_mention"], function (bot, message) {
-    var skamupdates = helpers.getSKAMUpdates();
-    bot.reply(message, skamupdates);
+controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    Q.fcall(helpers.getSKAMUpdates()).then(function (updates) {
+        if (updates) {
+            console.log("got updates \n" + updates);
+            bot.reply(message, updates);
+        }
+    }, function (err) { console.log(err) });
 });
 
 //Generate guid
