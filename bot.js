@@ -376,7 +376,8 @@ controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], func
         bot.api.files.upload({
             content: body,
             channels: message.channel,
-            filename: 'doit.gif'
+            filename: 'doit.gif',
+            filetype: 'gif'
         }, function (err, res) {
             if (err) {
                 bot.botkit.log("Failed to add gif :(", err);
