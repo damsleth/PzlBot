@@ -372,6 +372,7 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
 
 controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
+        console.log("requested gif, uploading to slack");
         bot.api.files.upload({
             content: body,
             channels: message.channel,
@@ -382,6 +383,7 @@ controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], func
                 bot.botkit.log(data);
             }
         });
+        console.log("successfully(?) uploaded file");
     });
 });
 
