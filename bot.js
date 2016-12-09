@@ -19,6 +19,7 @@ var bot = controller.spawn({ token: process.env.SLACK_TOKEN });
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var Q = require('q');
+var fs = require('fs');
 
 var Slack = require('node-slack-upload');
 var slackToken = process.env.SLACK_TOKEN;
