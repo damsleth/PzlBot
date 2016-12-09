@@ -321,7 +321,7 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
     if (iifBool) {
         bot.reply(message, helpers.giphyUrl("friday"));
     }
-    else bot.reply(message, helpers.isItFriday());
+    bot.reply(message, helpers.isItFriday());
 });
 
 //Mirror mirror
