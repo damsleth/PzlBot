@@ -330,60 +330,41 @@ controller.hears(['is it friday?'], ['direct_message', 'direct_mention', 'mentio
     bot.reply(message, helpers.isItFriday());
 });
 
+
 // controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
 //     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
-//         console.log("got gif, attempting upload to slack channel \n ");
-//         slack.uploadFile({
-//             content: body,
-//             filetype: 'post',
-//             title: 'doit.gif',
-//             initialComment: 'no comment lol',
-//             channels: message.channel
-//         }, function (err, data) {
-//             if (err) {
-//                 console.log("***BOMBED UPLOAD***");
-//                 console.error(err);
-//             }
-//             else {
-//                 console.log('Uploaded file details: ', data);
-//             }
-//         });
-//     });
-// });
-
-// controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-//     var file = fs.createWriteStream("doit.gif");
-//     http.get("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", response => {
-//         response.pipe(file);
-//         console.log(message.channel);
-
+//         console.log("requested gif, uploading to slack");
 //         bot.api.files.upload({
-//             content: data,
-//             channel: message.channel
+//             content: body,
+//             channels: message.channel,
+//             filename: 'do it',
+//             filetype: 'auto',
+//             mimetype: "image\/gif",
 //         }, function (err, res) {
 //             if (err) {
 //                 bot.botkit.log("Failed to add gif :(", err);
 //                 bot.botkit.log(data);
 //             }
 //         });
+//         console.log("successfully(?) uploaded file");
 //     });
 // });
-
 
 controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     request("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif", function (error, response, body) {
         console.log("requested gif, uploading to slack");
-        bot.api.files.upload({
-            content: body,
-            channels: message.channel,
-            filename: 'do it',
-            filetype: 'gif',
-            mimetype: "image\/gif",
-        }, function (err, res) {
-            if (err) {
-                bot.botkit.log("Failed to add gif :(", err);
-                bot.botkit.log(data);
-            }
+        request.post({
+            url: 'https://slack.com/api/files.upload',
+            formData: {
+                token: slackToken,
+                title: "Image",
+                filename: "image.gif",
+                filetype: "auto",
+                channels: message.channel,
+                file: fs.createReadStream(body),
+            },
+        }, function (err, response) {
+            console.log(JSON.parse(response.body));
         });
         console.log("successfully(?) uploaded file");
     });
