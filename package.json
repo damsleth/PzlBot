@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "botkit": "^0.4.3",
+    "botkit-storage-mongo": "^1.0.4",
     "cheerio": "^0.22.0",
     "request": "^2.79.0"
   },
