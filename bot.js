@@ -14,17 +14,14 @@ var Botkit = require('botkit');
 var request = require('request');
 var os = require('os');
 var http = require('http');
-var controller = Botkit.slackbot({ debug: false });
+var mongoStorage = require('botkit-storage-mongo')({mongoUri: process.env.MONGODB_URI });
+var controller = Botkit.slackbot({ debug: false, storage: mongoStorage });
 var slackToken = process.env.SLACK_TOKEN;
 var bot = controller.spawn({ token: slackToken });
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var fs = require('fs');
 var cheerio = require('cheerio');
-mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI }),
-    controller = Botkit.slackbot({
-        storage: mongoStorage
-    });
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -51,7 +48,7 @@ getUpdatesFrom = function (url, channel) {
 }
 
 //stop intermittent fetch
-stopUpdatesFrom = function(url) {
+stopUpdatesFrom = function (url) {
 
 };
 
