@@ -1,6 +1,6 @@
 //===
 // BENDER the Pzl Slack bot v1.0 June 2016
-// Last updated 9.11.2016 by @damsleth
+// Last updated 16.12.2016 by @damsleth
 //===
 
 //Check if there's a slack token, if not, exit
@@ -21,6 +21,10 @@ var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var fs = require('fs');
 var cheerio = require('cheerio');
+mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI }),
+    controller = Botkit.slackbot({
+        storage: mongoStorage
+    });
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -38,6 +42,24 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 setInterval(function () {
     http.get("http://pzlbot.herokuapp.com");
 }, 300000);
+
+//Intermittent fetch
+getUpdatesFrom(function (url, channel) {
+    controller.storage.updates.save(url, function (err, id) {
+        bot.reply("fetching updates from " + url);
+    });
+});
+
+//stop intermittent fetch
+stopUpdatesFrom(function (url) {
+
+});
+
+//timed fetch poller
+// setInterval(function () {
+// //TODO: get array of urls, loop through, push updates;
+//     http.get("http://pzlbot.herokuapp.com");
+// }, 300000);
 
 //===
 //bot commands
@@ -274,7 +296,7 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
             var updates = $('.byline').text();
-            bot.reply(message, "Siste SKAM-oppdateringer \n"+updates);
+            bot.reply(message, "Siste SKAM-oppdateringer \n" + updates);
         }
     });
 });
