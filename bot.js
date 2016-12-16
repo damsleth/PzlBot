@@ -44,16 +44,16 @@ setInterval(function () {
 }, 300000);
 
 //Intermittent fetch
-getUpdatesFrom(function (url, channel) {
+getUpdatesFrom = function (url, channel) {
     controller.storage.updates.save(url, function (err, id) {
         bot.reply("fetching updates from " + url);
     });
-});
+}
 
 //stop intermittent fetch
-stopUpdatesFrom(function (url) {
+stopUpdatesFrom = function(url) {
 
-});
+};
 
 //timed fetch poller
 // setInterval(function () {
