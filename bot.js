@@ -298,6 +298,18 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
     });
 });
 
+//DSSMENU
+controller.hears("DSSMENU", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var dayNr = new Date().getDay();
+            var $ = cheerio.load(body);
+            var menu = $($('.ukesmeny .oddRow td')[dayNr]).text();
+            bot.reply(message, "MENY FOR "+ helpers.getDayName().toUpperCase() +" \n" + menu);
+        }
+    });
+});
+
 //Generate guid
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var uuid = helpers.guid();
