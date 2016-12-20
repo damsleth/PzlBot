@@ -14,7 +14,7 @@ var Botkit = require('botkit');
 var request = require('request');
 var os = require('os');
 var http = require('http');
-var mongoStorage = require('botkit-storage-mongo')({mongoUri: process.env.MONGODB_URI });
+var mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI });
 var controller = Botkit.slackbot({ debug: false, storage: mongoStorage });
 var slackToken = process.env.SLACK_TOKEN;
 var bot = controller.spawn({ token: slackToken });
@@ -304,8 +304,8 @@ controller.hears("DSSMENU", ["direct_message", "mention", "direct_mention"], fun
         if (!error && response.statusCode == 200) {
             var dayNr = new Date().getDay();
             var $ = cheerio.load(body);
-            var menu = $('.ukesmeny .oddRow td').text();
-            bot.reply(message, "MENY FOR "+ helpers.getDayName().toUpperCase() +" \n" + menu);
+            var menu = $('.ukesmeny td:nth-child(' + dayNr + ')').text();
+            bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
 });
