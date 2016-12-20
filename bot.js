@@ -305,7 +305,7 @@ controller.hears("DSSMENU", ["direct_message", "mention", "direct_mention"], fun
             var dayNr = new Date().getDay();
             var $ = cheerio.load(body);
             var menu = $('.ukesmeny .oddRow td:nth-child('+dayNr+')').text();
-            bot.reply(message, "MENY FOR "+ helpers.getDayName().toUpperCase() +" \n" + menu);
+            bot.reply(message, menu);
         }
     });
 });
