@@ -208,7 +208,7 @@ askWhereDeliver = function (response, convo) {
 }
 
 //Insult OKMS
-controller.hears(['okms', 'OKMS'], ['ambient'], function (bot, message) {
+controller.hears(['okms', 'OKMS'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
     bot.startConversation(message, okmsWho);
 });
 
