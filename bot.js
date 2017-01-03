@@ -263,6 +263,11 @@ controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], function
     bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
 
+//Svada
+controller.hears("Svada", ['direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, helpers.svada());
+});
+
 //Throw two Dice
 controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
     var dice1 = Math.floor(6 * Math.random() + 1);
