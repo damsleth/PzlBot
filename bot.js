@@ -1,6 +1,6 @@
 //===
 // BENDER the Pzl Slack bot v1.0 June 2016
-// Last updated 16.12.2016 by @damsleth
+// Last updated 03.01.2017 by @damsleth
 //===
 
 //Check if there's a slack token, if not, exit
@@ -128,9 +128,7 @@ controller.hears(['what is my name', 'who am i', 'whats my name', 'whoami'], 'di
                                 }
                             }
                         ]);
-
                         convo.next();
-
                     }, { 'key': 'nickname' }); //Store the results in a field called nickname
 
                     convo.on('end', function (convo) {
@@ -148,9 +146,6 @@ controller.hears(['what is my name', 'who am i', 'whats my name', 'whoami'], 'di
                                     bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
                                 });
                             });
-
-
-
                         } else {
                             //This happens if the conversation ended prematurely for some reason
                             bot.reply(message, 'OK, whatever then!');
@@ -182,7 +177,7 @@ controller.on('slash_command', function (bot, message) {
 
 
 //Order Pizza
-controller.hears(['pizzatime'], ['ambient'], function (bot, message) {
+controller.hears(['pizzatime'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
     bot.startConversation(message, askFlavor);
 });
 
@@ -209,8 +204,13 @@ askWhereDeliver = function (response, convo) {
 
 //Insult OKMS
 controller.hears(['okms', 'OKMS'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
-  //  bot.startConversation(message, okmsWho);
-  bot.reply(message, ":fu:" );
+    //  bot.startConversation(message, okmsWho);
+    bot.reply(message, ":fu:");
+});
+
+//Reply to personal insults
+controller.hears(['fuck'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    bot.reply(message, "Hey <@" + message.user + "> \n fu:");
 });
 
 okmsWho = function (response, convo) {
@@ -330,7 +330,7 @@ controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'],
 });
 
 // Is it friday?
-controller.hears(['is it friday'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
