@@ -1,6 +1,6 @@
 //===
 // BENDER the Pzl Slack bot v1.0 June 2016
-// Last updated 03.01.2017 by @damsleth
+// Last updated 04.01.2017 by @damsleth
 //===
 
 //Check if there's a slack token, if not, exit
@@ -41,24 +41,6 @@ setInterval(function () {
     http.get("http://pzlbot.herokuapp.com");
 }, 300000);
 
-//Intermittent fetch
-getUpdatesFrom = function (url, channel) {
-    controller.storage.updates.save(url, function (err, id) {
-        bot.reply("fetching updates from " + url);
-    });
-}
-
-//stop intermittent fetch
-stopUpdatesFrom = function (url) {
-
-};
-
-//timed fetch poller
-// setInterval(function () {
-// //TODO: get array of urls, loop through, push updates;
-//     http.get("http://pzlbot.herokuapp.com");
-// }, 300000);
-
 //===
 //bot commands
 //===
@@ -80,7 +62,9 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
 
 // Jira integration
 controller.hears(['jira (.*)','issue (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    console.log("someone said jira?");
     var issueKey = message.match[1];
+    console.log("issue "+issueKey+" requested");
     bot.reply(message, jira.getIssue(issueKey));
 });
 
