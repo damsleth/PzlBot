@@ -20,6 +20,7 @@ var slackToken = process.env.SLACK_TOKEN;
 var bot = controller.spawn({ token: slackToken });
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
+var jira = require('./lib/jira');
 var fs = require('fs');
 var cheerio = require('cheerio');
 
@@ -75,6 +76,12 @@ controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is y
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, helpers.eightBall());
+});
+
+// Jira integration
+controller.hears(['jira (.*)','issue (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    var issueKey = message.match[1];
+    bot.reply(message, jira.getIssue(issueKey));
 });
 
 //Call me "name"

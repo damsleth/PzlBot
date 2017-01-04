@@ -12,6 +12,7 @@
     "botkit": "^0.4.3",
     "botkit-storage-mongo": "^1.0.4",
     "cheerio": "^0.22.0",
+    "jira-client": "^4.2.0",
     "request": "^2.79.0"
   },
   "engines": {
