@@ -91,7 +91,6 @@ controller.hears(['jira (.*)'], ['direct_message', 'direct_mention', 'mention'],
 controller.hears(['issue (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var issueKey = message.match[1];
     bot.replyAndUpdate(message, 'Finding issue ' + issueKey + ", hang on...", function (err, src, updateResponse) {
-        if (error) console.error(err);
         jira.getIssue(issueKey).then(function (reply) {
             updateResponse(reply, function (err) {
                 console.error(err)
