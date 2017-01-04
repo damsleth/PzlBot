@@ -71,11 +71,15 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
 });
 
 // Jira integration
-controller.hears(['jira (.*)','issue (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira (.*)', 'issue (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     console.log("someone said jira?");
     var issueKey = message.match[1];
-    console.log("issue "+issueKey+" requested");
-    bot.reply(message, jira.getIssue(issueKey));
+    api.findIssue(issueKey).then(function (issue) {
+        console.log("found issue " + issueKey);
+        //TODO: FANCY FORMATTING
+        var reply = "Issue: " + issueKey + " " + issue.fields.summary;
+        bot.reply(message, reply);
+    });
 });
 
 //Call me "name"
