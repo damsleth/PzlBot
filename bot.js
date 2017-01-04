@@ -12,6 +12,7 @@ if (!process.env.SLACK_TOKEN) {
 //Spawn bot
 var Botkit = require('botkit');
 var request = require('request');
+var JiraApi = require('jira-client');
 var os = require('os');
 var http = require('http');
 var mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI });
@@ -23,6 +24,15 @@ var jokes = require('./lib/jokes');
 var jira = require('./lib/jira');
 var fs = require('fs');
 var cheerio = require('cheerio');
+// Initialize 
+var api = new JiraApi({
+    protocol: process.env.JIRA_PROTOCOL,
+    host: process.env.JIRA_HOST,
+    username: process.env.JIRA_USER,
+    password: process.env.JIRA_PASS,
+    apiVersion: process.env.JIRA_API_VERSION,
+    strictSSL: process.env.JIRA_STRICT_SSL
+});
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
