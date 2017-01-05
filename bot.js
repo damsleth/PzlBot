@@ -15,10 +15,10 @@ var request = require('request');
 var JiraApi = require('jira-client');
 var os = require('os');
 var http = require('http');
-var mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI });
-var controller = Botkit.slackbot({ debug: false, storage: mongoStorage });
+// var mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI });
+var controller = Botkit.slackbot({ debug: true });
 var slackToken = process.env.SLACK_TOKEN;
-var bot = controller.spawn([{ token: slackToken }, { send_via_rtm: true }]);
+var bot = controller.spawn({ token: slackToken });
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var fs = require('fs');
@@ -110,12 +110,19 @@ controller.hears(['jira new (.*)', 'jira create (.*)'], ['direct_message', 'dire
             },
             "summary": summary,
             "description": description,
-            "issuetype": issueType
+            "issuetype": {
+                "name": issueType
+            }
         }
     };
     api.addNewIssue(addIssueJSON).then(function (issue) {
         bot.reply(message, issue.key + " Created.\n" +
             __jiraConfig.issuesUrl + issue.key);
+    }).catch(function (err) {
+        console.log(err);
+        bot.reply(message, "Sorry, couldn't create the issue for you.\n" +
+            "Maybe the project key doesn't exist?\n" +
+            "Check " + __jiraConfig.issuesUrl + projectKey);
     });
 });
 
@@ -123,10 +130,10 @@ controller.hears(['jira new (.*)', 'jira create (.*)'], ['direct_message', 'dire
 controller.hears(['jira get (.*)', 'jira find (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var issueKey = message.match[1];
     api.findIssue(issueKey).then(function (issue) {
-        var reply = issueKey + " " + issue.fields.summary +
-            "\nStatus: " + issue.field.status.name +
-            "\n" + __jiraConfig.issuesUrl + issueKey;
-        bot.reply(message, reply);
+        bot.reply(message, issueKey +
+            "\n" + issue.fields.summary +
+            "\n Status: " + issue.fields.status.name +
+            "\n" + __jiraConfig.issuesUrl + issueKey);
     }).catch(function (err) {
         console.log(err);
         bot.reply(message, "Sorry, couldn't find the issue for you.\n" +
@@ -158,8 +165,28 @@ controller.hears(['jira set (.*)', 'jira transition (.*)'], ['direct_message', '
 });
 
 
-// TODO: Comment on issue
-
+//Comment on issue
+controller.hears(['jira comment (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    var match = message.match[1];
+    var issueKey = match.substring(0, match.indexOf(" ")).trim();
+    var commentStr = match.substring(issueKey.length + 1, match.length).trim();
+    console.log("commenting on issue "+issueKey);
+    console.log("comment to be added:\n"+commentStr);
+    var addCommentJSON = {
+        "body": {
+            "body": commentStr
+        }
+    };
+    api.addComment(issueKey, commentStr).then(function (response) {
+        bot.reply(message, "Comment added to " + issueKey + "\n" +
+            __jiraConfig.issuesUrl + issueKey);
+    }).catch(function (err) {
+        console.log(err);
+        bot.reply(message, "Sorry, couldn't add the comment for you.\n" +
+            "Maybe the Issue doesn't exist?\n" +
+            "Check " + __jiraConfig.issuesUrl + issueKey);
+    });
+});
 
 //===========
 // END JIRA INTEGRATION
