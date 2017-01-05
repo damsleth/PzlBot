@@ -33,6 +33,7 @@ var api = new JiraApi({
     apiVersion: process.env.JIRA_API_VERSION,
     strictSSL: process.env.JIRA_STRICT_SSL
 });
+
 var __jiraConfig = {
     "issuesUrl": api.protocol + "://" + api.host + "/browse/",
     "transitions": {
