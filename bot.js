@@ -1,5 +1,5 @@
 //===
-// BENDER the Pzl Slack bot v1.0 June 2016
+// BENDER the Pzl Slack bot v1.1 January 2017
 // Last updated 05.01.2017 by @damsleth
 //===
 
@@ -15,8 +15,7 @@ var request = require('request');
 var JiraApi = require('jira-client');
 var os = require('os');
 var http = require('http');
-// var mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI });
-var controller = Botkit.slackbot({ debug: true });
+var controller = Botkit.slackbot({ debug: false });
 var slackToken = process.env.SLACK_TOKEN;
 var bot = controller.spawn({ token: slackToken });
 var helpers = require('./lib/helpers');
