@@ -89,7 +89,7 @@ var __jiraConfig = {
 };
 
 //Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira help', 'man jira', 'help jira'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, "*JIRA COMMANDS* \n" +
         "*Usage:* jira [Options] \n" +
         "*Create issue:* create|new <Project key>; <Issue type>; <Summary>; <Description>  _(Semi colon delimited)_ \n" +
@@ -100,7 +100,7 @@ controller.hears(['jira help', 'man jira', 'help jira'], ['direct_message', 'dir
 });
 
 // Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var parts = message.match[1].split(";").map(function (p) { return p.trim() });
     var projectKey = parts[0], issueType = parts[1], summary = parts[2], description = parts[3];
     var addIssueJSON = {
@@ -127,7 +127,7 @@ controller.hears(['jira new (.*)', 'jira create (.*)'], ['direct_message', 'dire
 });
 
 // Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var issueKey = message.match[1];
     api.findIssue(issueKey).then(function (issue) {
         bot.reply(message, issueKey +
@@ -144,7 +144,7 @@ controller.hears(['jira get (.*)', 'jira find (.*)'], ['direct_message', 'direct
 
 
 // Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var match = message.match[1];
     var issueKey = match.substring(0, match.indexOf(" ")).trim();
     var transitionStr = match.substring(issueKey.length + 1, match.length).trim().toLowerCase();
@@ -166,7 +166,7 @@ controller.hears(['jira set (.*)', 'jira transition (.*)'], ['direct_message', '
 
 
 //Comment on issue
-controller.hears(['jira comment (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira comment (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var match = message.match[1];
     var issueKey = match.substring(0, match.indexOf(" ")).trim();
     var commentStr = match.substring(issueKey.length + 1, match.length).trim();
