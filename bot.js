@@ -34,18 +34,18 @@ var api = new JiraApi({
     strictSSL: process.env.JIRA_STRICT_SSL
 });
 
-var __jiraConfig = {
-    "issuesUrl": api.protocol + "://" + api.host + "/browse/",
-    "transitions": {
-        "to do": "11",
-        "in progress": "21",
-        "done": "31",
-        "testing": "41",
-        "qa": "51",
-        "wontfix": "61",
-        "duplicate": "71"
-    }
-}
+// var __jiraConfig = {
+//     "issuesUrl": api.protocol + "://" + api.host + "/browse/",
+//     "transitions": {
+//         "to do": "11",
+//         "in progress": "21",
+//         "done": "31",
+//         "testing": "41",
+//         "qa": "51",
+//         "wontfix": "61",
+//         "duplicate": "71"
+//     }
+// }
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) {
@@ -88,74 +88,74 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
 // Jira integration
 // =======
 
-//Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, "*JIRA COMMANDS* \n" +
-        "*Usage:* jira [Options] \n" +
-        "*Create issue:* create|new <Project key>; <Issue type>; <Summary>; <Description>  _(Semi colon delimited)_ \n" +
-        "*Find issue:* get|find <issue-key> \n" +
-        "*Transition issue:* set|transition <issue-key> [To do|In Progress|Done|Wontfix|Impeded] \n" +
-        "*Comment on issue:* comment <issue-key> <comment> \n"
-    );
-});
+// //Syntax help
+// controller.hears(['jira help', 'man jira', 'help jira'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     bot.reply(message, "*JIRA COMMANDS* \n" +
+//         "*Usage:* jira [Options] \n" +
+//         "*Create issue:* create|new <Project key>; <Issue type>; <Summary>; <Description>  _(Semi colon delimited)_ \n" +
+//         "*Find issue:* get|find <issue-key> \n" +
+//         "*Transition issue:* set|transition <issue-key> [To do|In Progress|Done|Wontfix|Impeded] \n" +
+//         "*Comment on issue:* comment <issue-key> <comment> \n"
+//     );
+// });
 
-// Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var parts = message.match[1].split(";").map(function (p) { return p.trim() });
-    var projectKey = parts[0], issueType = parts[1], summary = parts[2], description = parts[3];
-    var addIssueJSON = {
-        "fields": {
-            "project": {
-                "key": projectKey
-            },
-            "summary": summary,
-            "description": description,
-            "issuetype": issueType
-        }
-    };
-    api.addNewIssue(addIssueJSON).then(function (issue) {
-        bot.reply(message, issue.key + " Created.\n" +
-            __jiraConfig.issuesUrl + issue.key);
-    });
-});
+// // Create issue
+// controller.hears(['jira new (.*)', 'jira create (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     var parts = message.match[1].split(";").map(function (p) { return p.trim() });
+//     var projectKey = parts[0], issueType = parts[1], summary = parts[2], description = parts[3];
+//     var addIssueJSON = {
+//         "fields": {
+//             "project": {
+//                 "key": projectKey
+//             },
+//             "summary": summary,
+//             "description": description,
+//             "issuetype": issueType
+//         }
+//     };
+//     api.addNewIssue(addIssueJSON).then(function (issue) {
+//         bot.reply(message, issue.key + " Created.\n" +
+//             __jiraConfig.issuesUrl + issue.key);
+//     });
+// });
 
-// Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var issueKey = message.match[1];
-    api.findIssue(issueKey).then(function (issue) {
-        var reply = issueKey + " " + issue.fields.summary +
-            "\nStatus: " + issue.field.status.name +
-            "\n" + __jiraConfig.issuesUrl + issueKey;
-        bot.reply(message, reply);
-    }).catch(function (err) {
-        console.log(err);
-        bot.reply(message, "Sorry, couldn't find the issue for you.\n" +
-            "Maybe the issue doesn't exist?\n" +
-            "Check " + __jiraConfig.issuesUrl + issueKey);
-    });
-});
+// // Find issue
+// controller.hears(['jira get (.*)', 'jira find (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     var issueKey = message.match[1];
+//     api.findIssue(issueKey).then(function (issue) {
+//         var reply = issueKey + " " + issue.fields.summary +
+//             "\nStatus: " + issue.field.status.name +
+//             "\n" + __jiraConfig.issuesUrl + issueKey;
+//         bot.reply(message, reply);
+//     }).catch(function (err) {
+//         console.log(err);
+//         bot.reply(message, "Sorry, couldn't find the issue for you.\n" +
+//             "Maybe the issue doesn't exist?\n" +
+//             "Check " + __jiraConfig.issuesUrl + issueKey);
+//     });
+// });
 
 
-// Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var match = message.match[1];
-    var issueKey = match.substring(0, match.indexOf(" ")).trim();
-    var transitionStr = match.substring(issueKey.length + 1, match.length).trim().toLowerCase();
-    var transitionId = __jiraConfig.transitions[transitionStr];
-    var transitionJSON = {
-        "transition": {
-            "id": transitionId
-        }
-    };
-    api.transitionIssue(issueKey, transitionJSON).then(function (issue) {
-        bot.reply(message, "Issue " + issueKey + " transitioned to " + transitionStr);
-    }).catch(function (err) {
-        console.log(err);
-        bot.reply(message, "Sorry, couldn't transition the issue for you.\n" +
-            "Either it doesn't exist or the transition type is wrong.\n" +
-            "Check " + api.JIRA_HOST + "/rest/api/2/issue/" + issueKey + "/transitions?expand=transitions.fields for available transitions and corresponding ids");
-    });
-});
+// // Transition issue
+// controller.hears(['jira set (.*)', 'jira transition (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+//     var match = message.match[1];
+//     var issueKey = match.substring(0, match.indexOf(" ")).trim();
+//     var transitionStr = match.substring(issueKey.length + 1, match.length).trim().toLowerCase();
+//     var transitionId = __jiraConfig.transitions[transitionStr];
+//     var transitionJSON = {
+//         "transition": {
+//             "id": transitionId
+//         }
+//     };
+//     api.transitionIssue(issueKey, transitionJSON).then(function (issue) {
+//         bot.reply(message, "Issue " + issueKey + " transitioned to " + transitionStr);
+//     }).catch(function (err) {
+//         console.log(err);
+//         bot.reply(message, "Sorry, couldn't transition the issue for you.\n" +
+//             "Either it doesn't exist or the transition type is wrong.\n" +
+//             "Check " + api.JIRA_HOST + "/rest/api/2/issue/" + issueKey + "/transitions?expand=transitions.fields for available transitions and corresponding ids");
+//     });
+// });
 
 
 // TODO: Comment on issue
