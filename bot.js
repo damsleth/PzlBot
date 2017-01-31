@@ -59,6 +59,11 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
     bot.reply(message, helpers.eightBall());
 });
 
+// Jokes
+controller.hears(['tell me a joke'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, helpers.jokes());
+});
+
 
 //========
 // Jira integration
@@ -453,24 +458,6 @@ controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention
         helpers.giphy("friday");
     }
     bot.reply(message, helpers.isItFriday());
-});
-
-//WORKS!!!!
-controller.hears(['doit'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    console.log("requested gif, uploading to slack");
-    bot.api.files.upload({
-        file: request.get("https://dl.dropboxusercontent.com/u/516927/gif/dooit.gif"),
-        channels: message.channel,
-        filename: 'do it',
-        filetype: 'auto',
-        mimetype: "image\/gif",
-    }, function (err, res) {
-        if (err) {
-            bot.botkit.log("Failed to add gif :(", err);
-            bot.botkit.log(data);
-        }
-    });
-    console.log("successfully(?) uploaded file");
 });
 
 //Mirror mirror
