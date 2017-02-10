@@ -3,10 +3,17 @@
 // Last updated 05.01.2017 by @damsleth
 //===
 
-//Check if there's a slack token, if not, exit
+// Suggestions:
+//
+// PostSecret: dm bender, posts anonymously to predefined channel
+// Anonymous images: send bender an image and he'll post it anonymously
+// Add to spotify playlist
+
+
+
+//Check if there's a slack token, if not, we're probably debugging, so load dotenv
 if (!process.env.SLACK_TOKEN) {
-    console.log('Error: Specify SLACK_TOKEN in environment');
-    process.exit(1);
+    require('dotenv').config();
 }
 
 //Spawn bot
@@ -40,6 +47,98 @@ setInterval(function () {
     http.get("http://pzlbot.herokuapp.com");
 }, 300000);
 
+
+
+
+//=======================
+// SHAREPOINT REQUEST CONFIGS
+//=======================
+var __config = {
+    Listeners: {
+        All: ["ambient", "direct_message", "direct_mention", "mention"],
+        NonAmbient: ["direct_message", "direct_mention", "mention"],
+    },
+    CreateCRMLead: {
+        title: "CreateCRMLead",
+        uri: "https://prod-26.westeurope.logic.azure.com:443/workflows/f5467c0caf5f4b2c89c99d0cc178c450/triggers/manual/run?api-version=2015-08-01-preview&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=mmepSJpLDsrmRA8DpRYQoc_dlSXXL3qNHEn4NkdVToA",
+        props: ["firstname", "lastname", "email", "city", "country", "phone", "handle"],
+        triggers: ["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"],
+        helptext: "*New recruit*\n*Usage:* Create-CRMLead [Firstname],[Lastname],[Email],[City],[Country],[Phone],[Handle]",
+    },
+    CreateSite: {
+        title: "CreateSite",
+        uri: "https://prod-07.westeurope.logic.azure.com/workflows/09028edc18fd4db490b1c2df8cdf682d/triggers/manual/run?api-version=2015-08-01-preview&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PiQ1nCxm1uR2_UMFlVE0zsG_AV9VXGKK07zkAcECzVY",
+        props: ["title", "description"],
+        triggers: ["new site (.*)", "create site (.*)", "Create-SPSite (.*)"],
+    }
+}
+
+var getRequestPayload = function (requestType, url, query) {
+    var q = query.split(',');
+    var json = {};
+    var payloadArr = q.map((r, i) => { json[__config[requestType].props[i]] = r; });
+    return options = {
+        headers: { "content-type": "application/json" },
+        uri: __config[requestType].uri,
+        method: 'POST',
+        json
+    };
+}
+
+//=======================
+// SHAREPOINT INTEGRATION
+//=======================
+
+//Create SPSite
+controller.hears(__config.CreateSite.triggers, __config.Listeners.All, function (bot, message) {
+    if (message.match[1]) {
+        var payload = getRequestPayload(__config.CreateSite.title, __config.CreateSite.uri, message.match[1]);
+        request(options, function (error, response, body) {
+            if (!error) { console.log(response.statusCode.toString()); }
+            else { console.log(error.toString()); }
+            bot.reply(message, `Site ${payload.json.title} requested! \n see https://appsters2017.sharepoint.com/sites/directory/Lists/Sites for status`);
+        });
+    }
+    else { bot.reply(message, "*Create-SPSite* \n" + "*Usage:* Create-SPSite [Title], [Description]"); }
+});
+
+//Create CRM Lead
+controller.hears(__config.CreateCRMLead.triggers, __config.Listeners.All, function (bot, message) {
+    if (message.match[1] && message.match[1].length > 1) {
+        var payload = getRequestPayload(__config.CreateCRMLead.title, __config.CreateCRMLead.uri, message.match[1]);
+        request(payload, function (error, response, body) {
+            if (!error) {
+                bot.reply(message, `Potential recruit ${payload.json.firstname} ${payload.json.lastname} registered`);
+            }
+            else {
+                console.log(error.toString());
+                bot.reply(message, "Sorry, couldn't register recruit! Maybe they've changed something? Look for dejavu's!");
+                bot.reply(message, "Sorry, couldn't register recruit! Maybe they've changed something? Look for dejavu's!");
+            }
+        });
+    }
+    else {
+        bot.reply(message, __config.CreateCRMLead.helptext);
+    }
+});
+
+
+// 8==============D
+// WHO AM I
+// 8==============D
+
+
+//list all props
+controller.hears(["currentuserinfo", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
+    helpers.getUserInfoBlob(bot, message);
+});
+
+//list props nicely (not doing that right now)
+controller.hears(["whoami", "who am i"], __config.Listeners.All, function (bot, message) {
+    helpers.getUserInfo(bot, message);
+});
+
+
 //===
 //bot commands
 //===
@@ -61,7 +160,16 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
 
 // Jokes
 controller.hears(['tell me a joke'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, helpers.jokes());
+    bot.reply(message, jokes.getJoke());
+});
+
+
+// Post PostSecret
+controller.hears('postsecret (.*),(.*)',['direct_message', 'direct_mention', 'mention'],function(bot,message){
+var msg = message.match[1];
+var chn = message.match[2];
+message.channel = chn;
+bot.reply(message,`postsecret: ${msg}`);
 });
 
 
@@ -93,7 +201,7 @@ var __jiraConfig = {
 };
 
 //Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira help', 'man jira', 'help jira'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, "*JIRA COMMANDS* \n" +
         "*Usage:* jira [Options] \n" +
         "*Create issue:* create|new <Project key>; <Issue type>; <Summary>; <Description>  _(Semi colon delimited)_ \n" +
@@ -104,7 +212,7 @@ controller.hears(['jira help', 'man jira', 'help jira'], ['ambient','direct_mess
 });
 
 // Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var parts = message.match[1].split(";").map(function (p) { return p.trim() });
     var projectKey = parts[0], issueType = parts[1], summary = parts[2], description = parts[3];
     var addIssueJSON = {
@@ -131,7 +239,7 @@ controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient','direct_messa
 });
 
 // Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var issueKey = message.match[1];
     api.findIssue(issueKey).then(function (issue) {
         bot.reply(message, issueKey +
@@ -148,7 +256,7 @@ controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient','direct_message
 
 
 // Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var match = message.match[1];
     var issueKey = match.substring(0, match.indexOf(" ")).trim();
     var transitionStr = match.substring(issueKey.length + 1, match.length).trim().toLowerCase();
@@ -170,12 +278,12 @@ controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient','direct_m
 
 
 //Comment on issue
-controller.hears(['jira comment (.*)'], ['ambient','direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var match = message.match[1];
     var issueKey = match.substring(0, match.indexOf(" ")).trim();
     var commentStr = match.substring(issueKey.length + 1, match.length).trim();
-    console.log("commenting on issue "+issueKey);
-    console.log("comment to be added:\n"+commentStr);
+    console.log("commenting on issue " + issueKey);
+    console.log("comment to be added:\n" + commentStr);
     var addCommentJSON = {
         "body": {
             "body": commentStr
