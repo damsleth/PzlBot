@@ -5,7 +5,6 @@
 
 // Suggestions:
 //
-// PostSecret: dm bender, posts anonymously to predefined channel
 // Anonymous images: send bender an image and he'll post it anonymously
 // Add to spotify playlist
 
@@ -129,12 +128,12 @@ controller.hears(__config.CreateCRMLead.triggers, __config.Listeners.All, functi
 
 
 //list all props
-controller.hears(["currentuserinfo", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
+controller.hears(["currentuserinfo"], __config.Listeners.All, function (bot, message) {
     helpers.getUserInfoBlob(bot, message);
 });
 
 //list props nicely (not doing that right now)
-controller.hears(["whoami", "who am i"], __config.Listeners.All, function (bot, message) {
+controller.hears(["whoami", "who am i","_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
     helpers.getUserInfo(bot, message);
 });
 
