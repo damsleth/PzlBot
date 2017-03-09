@@ -533,7 +533,7 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
 });
 
 //DSSMENU
-controller.hears("DSSMENU", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["DSSMENU","menu"] ["direct_message", "mention", "direct_mention"], function (bot, message) {
     request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var dayNr = new Date().getDay();
