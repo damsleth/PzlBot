@@ -168,6 +168,8 @@ controller.hears('postsecret (.*),(.*)',['direct_message', 'direct_mention', 'me
 var msg = message.match[1];
 var chn = message.match[2];
 message.channel = chn;
+console.log("Posting secretly on behalf of "+message.user);
+console.log("Message: '"+msg+"' in channel: "+chn);
 bot.reply(message,`postsecret: ${msg}`);
 });
 
