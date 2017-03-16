@@ -134,6 +134,11 @@ controller.hears(["currentuserinfo"], __config.Listeners.All, function (bot, mes
 
 //list props nicely (not doing that right now)
 controller.hears(["whoami", "who am i","_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
+    helpers.getCurrentUserInfo(bot, message);
+});
+
+//Who is "user, f.ex U03QK793X"
+controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, function (bot, message) {
     helpers.getUserInfo(bot, message);
 });
 
@@ -324,7 +329,7 @@ controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_men
 });
 
 //Return name from storage
-controller.hears(['what is my name', 'who am i', 'whats my name', 'whoami'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_message,direct_mention,mention', function (bot, message) {
 
     controller.storage.users.get(message.user, function (err, user) {
         if (user && user.name) {
