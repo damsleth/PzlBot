@@ -543,9 +543,8 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
 controller.hears(["DSSMENU","menu","meny"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
     request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            var dayNr = new Date().getDay();
             var $ = cheerio.load(body);
-            var menu = $('.ukesmeny td:nth-child(' + dayNr + ')').text();
+            var menu = $('.ukesmeny td:nth-child(' + new Date().getDay() + ')').text();
             bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
