@@ -21,9 +21,13 @@ var request = require('request');
 var JiraApi = require('jira-client');
 var os = require('os');
 var http = require('http');
-var controller = Botkit.slackbot({ debug: false });
+var controller = Botkit.slackbot({
+    debug: false
+});
 var slackToken = process.env.SLACK_TOKEN;
-var bot = controller.spawn({ token: slackToken });
+var bot = controller.spawn({
+    token: slackToken
+});
 var helpers = require('./lib/helpers');
 var jokes = require('./lib/jokes');
 var fs = require('fs');
@@ -42,8 +46,13 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
+//Keeps alive mon-fri 8-20
+
 setInterval(function () {
-    http.get("http://pzlbot.herokuapp.com");
+    var d = new Date();
+    if (d.getDay() > 0 && d.getDay() < 6 && d.getHours() > 7 && d.getHours() < 20) {
+        http.get("http://pzlbot.herokuapp.com");
+    }
 }, 300000);
 
 
@@ -75,9 +84,13 @@ var __config = {
 var getRequestPayload = function (requestType, url, query) {
     var q = query.split(',');
     var json = {};
-    var payloadArr = q.map((r, i) => { json[__config[requestType].props[i]] = r; });
+    var payloadArr = q.map((r, i) => {
+        json[__config[requestType].props[i]] = r;
+    });
     return options = {
-        headers: { "content-type": "application/json" },
+        headers: {
+            "content-type": "application/json"
+        },
         uri: __config[requestType].uri,
         method: 'POST',
         json
@@ -93,12 +106,16 @@ controller.hears(__config.CreateSite.triggers, __config.Listeners.All, function 
     if (message.match[1]) {
         var payload = getRequestPayload(__config.CreateSite.title, __config.CreateSite.uri, message.match[1]);
         request(options, function (error, response, body) {
-            if (!error) { console.log(response.statusCode.toString()); }
-            else { console.log(error.toString()); }
+            if (!error) {
+                console.log(response.statusCode.toString());
+            } else {
+                console.log(error.toString());
+            }
             bot.reply(message, `Site ${payload.json.title} requested! \n see https://appsters2017.sharepoint.com/sites/directory/Lists/Sites for status`);
         });
+    } else {
+        bot.reply(message, "*Create-SPSite* \n" + "*Usage:* Create-SPSite [Title], [Description]");
     }
-    else { bot.reply(message, "*Create-SPSite* \n" + "*Usage:* Create-SPSite [Title], [Description]"); }
 });
 
 //Create CRM Lead
@@ -108,15 +125,13 @@ controller.hears(__config.CreateCRMLead.triggers, __config.Listeners.All, functi
         request(payload, function (error, response, body) {
             if (!error) {
                 bot.reply(message, `Potential recruit ${payload.json.firstname} ${payload.json.lastname} registered`);
-            }
-            else {
+            } else {
                 console.log(error.toString());
                 bot.reply(message, "Sorry, couldn't register recruit! Maybe they've changed something? Look for dejavu's!");
                 bot.reply(message, "Sorry, couldn't register recruit! Maybe they've changed something? Look for dejavu's!");
             }
         });
-    }
-    else {
+    } else {
         bot.reply(message, __config.CreateCRMLead.helptext);
     }
 });
@@ -133,7 +148,7 @@ controller.hears(["currentuserinfo"], __config.Listeners.All, function (bot, mes
 });
 
 //list props nicely (not doing that right now)
-controller.hears(["whoami", "who am i","_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
+controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
     helpers.getCurrentUserInfo(bot, message);
 });
 
@@ -169,13 +184,13 @@ controller.hears(['tell me a joke'], ['direct_message', 'direct_mention', 'menti
 
 
 // Post PostSecret
-controller.hears('postsecret (.*),(.*)',['direct_message', 'direct_mention', 'mention'],function(bot,message){
-var msg = message.match[1];
-var chn = message.match[2];
-message.channel = chn;
-console.log("Posting secretly on behalf of "+message.user);
-console.log("Message: '"+msg+"' in channel: "+chn);
-bot.reply(message,`postsecret: ${msg}`);
+controller.hears('postsecret (.*),(.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    var msg = message.match[1];
+    var chn = message.match[2];
+    message.channel = chn;
+    console.log("Posting secretly on behalf of " + message.user);
+    console.log("Message: '" + msg + "' in channel: " + chn);
+    bot.reply(message, `postsecret: ${msg}`);
 });
 
 
@@ -219,8 +234,13 @@ controller.hears(['jira help', 'man jira', 'help jira'], ['ambient', 'direct_mes
 
 // Create issue
 controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var parts = message.match[1].split(";").map(function (p) { return p.trim() });
-    var projectKey = parts[0], issueType = parts[1], summary = parts[2], description = parts[3];
+    var parts = message.match[1].split(";").map(function (p) {
+        return p.trim()
+    });
+    var projectKey = parts[0],
+        issueType = parts[1],
+        summary = parts[2],
+        description = parts[3];
     var addIssueJSON = {
         "fields": {
             "project": {
@@ -339,8 +359,7 @@ controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_messa
                 if (!err) {
                     convo.say('I do not know your name yet!');
                     convo.ask('What should I call you?', function (response, convo) {
-                        convo.ask('You want me to call you `' + response.text + '`?', [
-                            {
+                        convo.ask('You want me to call you `' + response.text + '`?', [{
                                 pattern: 'yes',
                                 callback: function (response, convo) {
                                     //Since no further messages are queued after this,
@@ -364,7 +383,9 @@ controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_messa
                             }
                         ]);
                         convo.next();
-                    }, { 'key': 'nickname' }); //Store the results in a field called nickname
+                    }, {
+                        'key': 'nickname'
+                    }); //Store the results in a field called nickname
 
                     convo.on('end', function (convo) {
                         if (convo.status == 'completed') {
@@ -395,7 +416,8 @@ controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_messa
 
 //Uptime
 controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,direct_mention,mention', function (bot, message) {
+    'direct_message,direct_mention,mention',
+    function (bot, message) {
 
         var hostname = os.hostname();
         var uptime = helpers.formatUptime(process.uptime());
@@ -467,8 +489,7 @@ controller.hears("russian roulette", "ambient", function (bot, message) {
     var roulette = Math.floor(6 * Math.random()) + 1;
     if (roulette == 1) {
         bot.reply(message, "*BANG*, <@" + message.user + ">, you're dead!");
-    }
-    else {
+    } else {
         bot.reply(message, "*click*. Whew, <@" + message.user + ">, you'll live.");
     }
 });
@@ -479,8 +500,7 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
     var roulette = Math.floor(6 * Math.random()) + 1;
     if (roulette == 1) {
         bot.reply(message, "*BANG*, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
-    }
-    else {
+    } else {
         bot.reply(message, "*click*. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
     }
 });
@@ -488,8 +508,11 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 //GIPHY
 controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var q = message.match[1];
-    if (q) { helpers.giphy(q, bot, message); }
-    else { bot.reply(message, "You gotta specify a keyword for your giphy, dummy"); }
+    if (q) {
+        helpers.giphy(q, bot, message);
+    } else {
+        bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
+    }
 });
 
 //Slap user
@@ -540,7 +563,7 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
 });
 
 //DSSMENU
-controller.hears(["DSSMENU","menu","meny"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["DSSMENU", "menu", "meny"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
     request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
