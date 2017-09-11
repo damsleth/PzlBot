@@ -49,10 +49,7 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 //Keeps alive mon-fri 8-20
 
 setInterval(function () {
-    var d = new Date();
-    if (d.getDay() > 0 && d.getDay() < 6 && d.getHours() > 7 && d.getHours() < 20) {
         http.get("http://pzlbot.herokuapp.com");
-    }
 }, 300000);
 
 
