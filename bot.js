@@ -49,7 +49,7 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 //Keeps alive mon-fri 8-20
 
 setInterval(function () {
-        http.get("http://pzlbot.herokuapp.com");
+    http.get("http://pzlbot.herokuapp.com");
 }, 300000);
 
 
@@ -568,6 +568,12 @@ controller.hears(["DSSMENU", "menu", "meny"], ["direct_message", "mention", "dir
             bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
+});
+
+//Latest polls
+controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    bot.reply(message, "Hang on, fetching latest polls...");
+    helpers.getAveragePoll(bot, message);
 });
 
 //Generate guid
