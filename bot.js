@@ -543,6 +543,11 @@ controller.hears("batteries", "ambient", function (bot, message) {
     bot.reply(message, "Oh my god stop whining about those god damn batteries!");
 });
 
+//TACOCAT
+controller.hears(["tacocat","taco cat", "TACOCAT", "TACO CAT"], "ambient", function (bot, message) {
+    bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:");
+});
+
 //Pizza Party
 controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
     bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
