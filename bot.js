@@ -179,6 +179,11 @@ controller.hears(['tell me a joke'], ['direct_message', 'direct_mention', 'menti
     bot.reply(message, jokes.getJoke());
 });
 
+// Har mannen falt?
+controller.hears(['Mannen', 'Har mannen falt'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+    helpers.mannen(bot, message);
+});
+
 
 // Post PostSecret
 controller.hears('postsecret (.*),(.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
