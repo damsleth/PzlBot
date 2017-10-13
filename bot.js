@@ -362,32 +362,32 @@ controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_messa
                     convo.say('I do not know your name yet!');
                     convo.ask('What should I call you?', function (response, convo) {
                         convo.ask('You want me to call you `' + response.text + '`?', [{
-                            pattern: 'yes',
-                            callback: function (response, convo) {
-                                //Since no further messages are queued after this,
-                                //The conversation will end naturally with status == 'completed'
-                                convo.next();
+                                pattern: 'yes',
+                                callback: function (response, convo) {
+                                    //Since no further messages are queued after this,
+                                    //The conversation will end naturally with status == 'completed'
+                                    convo.next();
+                                }
+                            },
+                            {
+                                pattern: 'no',
+                                callback: function (response, convo) {
+                                    //Stop the conversation. this will cause it to end with status == 'stopped'
+                                    convo.stop();
+                                }
+                            },
+                            {
+                                default: true,
+                                callback: function (response, convo) {
+                                    convo.repeat();
+                                    convo.next();
+                                }
                             }
-                        },
-                        {
-                            pattern: 'no',
-                            callback: function (response, convo) {
-                                //Stop the conversation. this will cause it to end with status == 'stopped'
-                                convo.stop();
-                            }
-                        },
-                        {
-                            default: true,
-                            callback: function (response, convo) {
-                                convo.repeat();
-                                convo.next();
-                            }
-                        }
                         ]);
                         convo.next();
                     }, {
-                            'key': 'nickname'
-                        }); //Store the results in a field called nickname
+                        'key': 'nickname'
+                    }); //Store the results in a field called nickname
 
                     convo.on('end', function (convo) {
                         if (convo.status == 'completed') {
@@ -554,7 +554,7 @@ controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], "ambient", func
 });
 
 //TACOCAT
-controller.hears(["oljefondet", "nbim","cash money","how rich am i", "pensjonsfondet"], "ambient", function (bot, message) {
+controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], "ambient", function (bot, message) {
     helpers.nbim(bot, message);
 });
 
@@ -609,7 +609,7 @@ controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
-        helpers.giphy("friday");
+        helpers.giphy("friday", bot, message);
     }
     bot.reply(message, helpers.isItFriday());
 });
