@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>MANNEN LIVE!!!!111</title>
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    </head>
+    <style type="text/css">
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+    <body>
+        <div style="width:1024px;margin:auto;">
+            <center>
+                <h1>MANNEN LIVE!!!111</h1>
+            </center>
+            <video id="video" width="800" height="600" autoplay controls></video>
+            <script>
+  if(Hls.isSupported()) {
+        var video = document.getElementById('video');
+            var hls = new Hls();
+                hls.loadSource('https://dkma03dvr-lh.akamaihd.net/i/dkma03dvr_0@188468/index_928_av-p.m3u8');
+                    hls.attachMedia(video);
+                        hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                                video.play();
+                                  });
+                         }
+  </script>
+        </div>
+    </body>
+</html>
