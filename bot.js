@@ -591,6 +591,12 @@ controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers",
     helpers.getAveragePoll(bot, message);
 });
 
+controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how much is (.*)"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    bot.reply(message, "Hang on, fetching prices...");
+    var productToFind = message.match[1];
+    helpers.prisjakt(productToFind, bot, message);
+});
+
 //Generate guid
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var uuid = helpers.guid();
