@@ -175,18 +175,18 @@ controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['dir
 });
 
 // Jokes
-controller.hears(['tell me a joke'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['tell me a joke', 'joke'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, jokes.getJoke());
 });
 
 // Har mannen falt?
-controller.hears(['Mannen', 'Har mannen falt'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['Mannen','mannen','Har mannen falt'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     helpers.mannen(bot, message);
 });
 
 
 // Post PostSecret
-controller.hears('postsecret (.*),(.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     var msg = message.match[1];
     var chn = message.match[2];
     message.channel = chn;
@@ -333,6 +333,34 @@ controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_me
 //===========
 
 
+controller.hears(["help", "-h", "--help", "?", "-?", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], function (bot, message) {
+    bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
+*Usage: [@bender] [command]* ((m) = requires @-mention of bender)
+*8ball [question]*: Magic 8-ball!
+*craps*: play craps
+*dice*: throw dice
+*dsssmenu* (m): returns today's cantina menu in the government quarters
+*giphy* [keyword] (m): returns a gif with the specified keyword
+*guid* (m): generate a fresh guid
+*insult* [user] (m): insult the specified user
+*is it friday* (m): checks if it really is friday
+*joke* (m): tell a joke
+*mannen* (m): checks if Mannen has fallen
+*oljefondet*: returns the value of the gov.pension fund
+*postsecret* [message] , [channel] (m): posts a secret message on your behalf to the specified channel
+*pris* [query] (m): returns the lowest price of an item from prisjakt
+*russian roulette*: play russian roulette!
+*shoot* [user]: russian roulette by proxy
+*slap* [user]: slap user
+*svada*: return some svada
+*tacocat*: TACOCAT!
+*uptime* (m): returns Bender's uptime
+*valg2017* (m): returns the election results
+*whoami*: Get current user info
+*whois [username]*: Get a specific user's info
+`);
+});
+
 
 //Call me "name"
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
@@ -469,7 +497,7 @@ controller.hears(['okms', 'OKMS'], ["direct_message", "mention", "direct_mention
 
 //Reply to personal insults
 controller.hears(['fuck'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
-    bot.reply(message, "Hey <@" + message.user + "> \n fu:");
+    bot.reply(message, "Hey <@" + message.user + "> \n :fu:");
 });
 
 okmsWho = function (response, convo) {
@@ -553,7 +581,7 @@ controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], "ambient", func
     bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:");
 });
 
-//TACOCAT
+//OLJEFONDET
 controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], "ambient", function (bot, message) {
     helpers.nbim(bot, message);
 });
