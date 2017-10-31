@@ -180,7 +180,7 @@ controller.hears(['tell me a joke', 'joke'], ['direct_message', 'direct_mention'
 });
 
 // Har mannen falt?
-controller.hears(['Mannen','mannen','Har mannen falt'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['Mannen', 'mannen', 'Har mannen falt'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
     helpers.mannen(bot, message);
 });
 
@@ -609,6 +609,37 @@ controller.hears(["DSSMENU", "menu", "meny"], ["direct_message", "mention", "dir
             var $ = cheerio.load(body);
             var menu = $('.ukesmeny td:nth-child(' + new Date().getDay() + ')').text();
             bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
+        }
+    });
+});
+
+//AIBELMENU
+controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny","Aibel"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    request('http://www.coor.no/serviceside-aibel/lunch-menu/', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var $ = cheerio.load(body);
+            var reply = "";
+            var daytrs = {
+                1: [1, 2, 3],
+                2: [4, 5, 6],
+                3: [7, 8, 9],
+                4: [10, 11, 12],
+                5: [13, 14, 15]
+            }
+            var trs = daytrs[new Date().getDay()]
+            var kantine = $(".kantine").each(function (i, k) {
+                kantineNr = i + 1;
+                title = $(k).find("p>strong").text();
+                reply += "\n\n" + title;
+                trs.forEach(function (tr) {
+                    var txt = $("#kantine" +kantineNr+" tr:nth-of-type(" + tr + ") td:nth-of-type(2)").text();
+                    if (txt.length > 1) {
+                        reply += "\n";
+                        reply += txt;
+                    }
+                });
+            })
+            bot.reply(message, "AIBEL KANTINEMENY FOR " + helpers.getDayName().toUpperCase() + " \n" + reply);
         }
     });
 });
