@@ -621,6 +621,14 @@ controller.hears("fullcontact (.*)", ["direct_message", "mention", "direct_menti
     }
 });
 
+// FULLCONTACT info retrieval - gets info on an email address or domain
+controller.hears("fullcontactdebug (.*)", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    if (message.match[1]) {
+        var query = message.match[1].toLowerCase();
+        helpers.fullcontact(query, bot, message, true)
+    }
+});
+
 //AIBELMENU
 controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny", "Aibel"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
     request('http://www.coor.no/serviceside-aibel/lunch-menu/', function (error, response, body) {
