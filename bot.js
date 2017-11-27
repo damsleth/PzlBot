@@ -1,6 +1,6 @@
 //===
-// BENDER the Pzl Slack bot v1.1 January 2017
-// Last updated 05.01.2017 by @damsleth
+// BENDER the Pzl Slack bot v1.2 November 2017
+// Last updated 27.11.2017 by @damsleth
 //===
 
 // Suggestions:
