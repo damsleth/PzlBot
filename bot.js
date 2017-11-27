@@ -613,8 +613,16 @@ controller.hears(["DSSMENU", "menu", "meny"], ["direct_message", "mention", "dir
     });
 });
 
+// FULLCONTACT info retrieval - gets info on an email address or domain
+controller.hears("fullcontact (.*)", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+    if (message.match[1]) {
+        var query = message.match[1];
+        helpers.fullcontact(query, bot, message)
+    }
+});
+
 //AIBELMENU
-controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny","Aibel"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny", "Aibel"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
     request('http://www.coor.no/serviceside-aibel/lunch-menu/', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
@@ -632,7 +640,7 @@ controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny","Aibel"], ["direct_mes
                 title = $(k).find("p>strong").text();
                 reply += "\n\n" + title;
                 trs.forEach(function (tr) {
-                    var txt = $("#kantine" +kantineNr+" tr:nth-of-type(" + tr + ") td:nth-of-type(2)").text();
+                    var txt = $("#kantine" + kantineNr + " tr:nth-of-type(" + tr + ") td:nth-of-type(2)").text();
                     if (txt.length > 1) {
                         reply += "\n";
                         reply += txt;
