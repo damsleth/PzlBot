@@ -336,10 +336,12 @@ controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_me
 controller.hears(["help", "-h", "--help", "?", "-?", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], function (bot, message) {
     bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
 *Usage: [@bender] [command]* ((m) = requires @-mention of bender)
+
 *8ball [question]*: Magic 8-ball!
 *craps*: play craps
 *dice*: throw dice
 *dsssmenu* (m): returns today's cantina menu in the government quarters
+*fullcontact* [email] (m): returns info on the specified email address from the fullcontact api
 *giphy* [keyword] (m): returns a gif with the specified keyword
 *guid* (m): generate a fresh guid
 *insult* [user] (m): insult the specified user
