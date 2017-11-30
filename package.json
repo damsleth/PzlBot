@@ -14,6 +14,7 @@
     "dotenv": "^4.0.0",
     "jira-client": "^4.2.0",
     "node-fetch": "^1.7.3",
+    "node-wit": "^4.3.0",
     "request": "^2.79.0"
   },
   "engines": {

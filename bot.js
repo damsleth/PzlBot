@@ -3,337 +3,64 @@
 // Last updated 27.11.2017 by @damsleth
 //===
 
-// Suggestions:
-//
-// Anonymous images: send bender an image and he'll post it anonymously
-// Add to spotify playlist
-
-
-
 //Check if there's a slack token, if not, we're probably debugging, so load dotenv
-if (!process.env.SLACK_TOKEN) {
-    require('dotenv').config();
-}
+if (!process.env.SLACK_TOKEN) require('dotenv').config();
 
 //Spawn bot
-var Botkit = require('botkit');
-var request = require('request');
-var JiraApi = require('jira-client');
-var os = require('os');
-var http = require('http');
-var controller = Botkit.slackbot({
-    debug: false
-});
-var slackToken = process.env.SLACK_TOKEN;
-var bot = controller.spawn({
-    token: slackToken
-});
-var helpers = require('./lib/helpers');
-var jokes = require('./lib/jokes');
-var fs = require('fs');
-var cheerio = require('cheerio');
+// TODO PUT ALL REQUIRES IN ITS OWN FILE 
+// LIKE
+// vars = [["foo","bar"],["lol","wut"],["brah","nah"]];
+// vars.forEach(v=>(this[v[0]] = v[1]));
+
+var botkit = require('botkit'),
+    fs = require('fs'),
+    cheerio = require('cheerio'),
+    request = require('request'),
+    os = require('os'),
+    http = require('http'),
+    slackToken = process.env.SLACK_TOKEN,
+    helpers = require('./lib/helpers'),
+    fullcontact = require('./lib/fullcontact'),
+    jira = require('./lib/jira'),
+    jokes = require('./lib/jokes'),
+    legacy = require('./lib/legacy'),
+    sharepoint = require('./lib/sharepoint'),
+    controller = botkit.slackbot({
+        debug: false
+    }),
+    bot = controller.spawn({
+        token: slackToken
+    });
 
 //Start Slack RTM
-bot.startRTM(function (err, bot, payload) {
-    // handle errors...
-});
+bot.startRTM(function (err, bot, payload) {});
 
 //Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, function () {
-        // handle errors, or nah.
-    });
+    controller.createWebhookEndpoints(webserver, bot, function () {});
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
-//Keeps alive mon-fri 8-20
-
 setInterval(function () {
     http.get("http://pzlbot.herokuapp.com");
 }, 300000);
 
 
+//===
+// CONFIG 
+//===
 
-
-//=======================
-// SHAREPOINT REQUEST CONFIGS
-//=======================
 var __config = {
     Listeners: {
         All: ["ambient", "direct_message", "direct_mention", "mention"],
         NonAmbient: ["direct_message", "direct_mention", "mention"],
-    },
-    CreateCRMLead: {
-        title: "CreateCRMLead",
-        uri: "https://prod-26.westeurope.logic.azure.com:443/workflows/f5467c0caf5f4b2c89c99d0cc178c450/triggers/manual/run?api-version=2015-08-01-preview&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=mmepSJpLDsrmRA8DpRYQoc_dlSXXL3qNHEn4NkdVToA",
-        props: ["firstname", "lastname", "email", "city", "country", "phone", "handle"],
-        triggers: ["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"],
-        helptext: "*New recruit*\n*Usage:* Create-CRMLead [Firstname],[Lastname],[Email],[City],[Country],[Phone],[Handle]",
-    },
-    CreateSite: {
-        title: "CreateSite",
-        uri: "https://prod-07.westeurope.logic.azure.com/workflows/09028edc18fd4db490b1c2df8cdf682d/triggers/manual/run?api-version=2015-08-01-preview&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PiQ1nCxm1uR2_UMFlVE0zsG_AV9VXGKK07zkAcECzVY",
-        props: ["title", "description"],
-        triggers: ["new site (.*)", "create site (.*)", "Create-SPSite (.*)"],
     }
 }
 
-var getRequestPayload = function (requestType, url, query) {
-    var q = query.split(',');
-    var json = {};
-    var payloadArr = q.map((r, i) => {
-        json[__config[requestType].props[i]] = r;
-    });
-    return options = {
-        headers: {
-            "content-type": "application/json"
-        },
-        uri: __config[requestType].uri,
-        method: 'POST',
-        json
-    };
-}
-
-//=======================
-// SHAREPOINT INTEGRATION
-//=======================
-
-//Create SPSite
-controller.hears(__config.CreateSite.triggers, __config.Listeners.All, function (bot, message) {
-    if (message.match[1]) {
-        var payload = getRequestPayload(__config.CreateSite.title, __config.CreateSite.uri, message.match[1]);
-        request(options, function (error, response, body) {
-            if (!error) {
-                console.log(response.statusCode.toString());
-            } else {
-                console.log(error.toString());
-            }
-            bot.reply(message, `Site ${payload.json.title} requested! \n see https://appsters2017.sharepoint.com/sites/directory/Lists/Sites for status`);
-        });
-    } else {
-        bot.reply(message, "*Create-SPSite* \n" + "*Usage:* Create-SPSite [Title], [Description]");
-    }
-});
-
-//Create CRM Lead
-controller.hears(__config.CreateCRMLead.triggers, __config.Listeners.All, function (bot, message) {
-    if (message.match[1] && message.match[1].length > 1) {
-        var payload = getRequestPayload(__config.CreateCRMLead.title, __config.CreateCRMLead.uri, message.match[1]);
-        request(payload, function (error, response, body) {
-            if (!error) {
-                bot.reply(message, `Potential recruit ${payload.json.firstname} ${payload.json.lastname} registered`);
-            } else {
-                console.log(error.toString());
-                bot.reply(message, "Sorry, couldn't register recruit! Maybe they've changed something? Look for dejavu's!");
-                bot.reply(message, "Sorry, couldn't register recruit! Maybe they've changed something? Look for dejavu's!");
-            }
-        });
-    } else {
-        bot.reply(message, __config.CreateCRMLead.helptext);
-    }
-});
-
-
-// 8==============D
-// WHO AM I
-// 8==============D
-
-
-//list all props
-controller.hears(["currentuserinfo"], __config.Listeners.All, function (bot, message) {
-    helpers.getUserInfoBlob(bot, message);
-});
-
-//list props nicely (not doing that right now)
-controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, function (bot, message) {
-    helpers.getCurrentUserInfo(bot, message);
-});
-
-//Who is "user, f.ex U03QK793X"
-controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, function (bot, message) {
-    helpers.getUserInfo(bot, message);
-});
-
-
-//===
-//bot commands
-//===
-
-//Say Hi
-controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, "Hi!");
-});
-
-//Who's yo daddy?
-controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
-    bot.reply(message, "Kimzter is!");
-});
-
-// 8 ball
-controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, helpers.eightBall());
-});
-
-// Jokes
-controller.hears(['tell me a joke', 'joke'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, jokes.getJoke());
-});
-
-// Har mannen falt?
-controller.hears(['Mannen', 'mannen', 'Har mannen falt'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    helpers.mannen(bot, message);
-});
-
-
-// Post PostSecret
-controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var msg = message.match[1];
-    var chn = message.match[2];
-    message.channel = chn;
-    console.log("Posting secretly on behalf of " + message.user);
-    console.log("Message: '" + msg + "' in channel: " + chn);
-    bot.reply(message, `postsecret: ${msg}`);
-});
-
-
-//========
-// Jira integration
-// =======
-
-// Initialize 
-var api = new JiraApi({
-    protocol: process.env.JIRA_PROTOCOL,
-    host: process.env.JIRA_HOST,
-    username: process.env.JIRA_USER,
-    password: process.env.JIRA_PASS,
-    apiVersion: process.env.JIRA_API_VERSION,
-    strictSSL: process.env.JIRA_STRICT_SSL
-});
-
-var __jiraConfig = {
-    "issuesUrl": api.protocol + "://" + api.host + "/browse/",
-    "transitions": {
-        "to do": "11",
-        "in progress": "21",
-        "done": "31",
-        "testing": "41",
-        "qa": "51",
-        "wontfix": "61",
-        "duplicate": "71"
-    }
-};
-
-//Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    bot.reply(message, "*JIRA COMMANDS* \n" +
-        "*Usage:* jira [Options] \n" +
-        "*Create issue:* create|new <Project key>; <Issue type>; <Summary>; <Description>  _(Semi colon delimited)_ \n" +
-        "*Find issue:* get|find <issue-key> \n" +
-        "*Transition issue:* set|transition <issue-key> [To do|In Progress|Done|Wontfix|Impeded] \n" +
-        "*Comment on issue:* comment <issue-key> <comment> \n"
-    );
-});
-
-// Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var parts = message.match[1].split(";").map(function (p) {
-        return p.trim()
-    });
-    var projectKey = parts[0],
-        issueType = parts[1],
-        summary = parts[2],
-        description = parts[3];
-    var addIssueJSON = {
-        "fields": {
-            "project": {
-                "key": projectKey
-            },
-            "summary": summary,
-            "description": description,
-            "issuetype": {
-                "name": issueType
-            }
-        }
-    };
-    api.addNewIssue(addIssueJSON).then(function (issue) {
-        bot.reply(message, issue.key + " Created.\n" +
-            __jiraConfig.issuesUrl + issue.key);
-    }).catch(function (err) {
-        console.log(err);
-        bot.reply(message, "Sorry, couldn't create the issue for you.\n" +
-            "Maybe the project key doesn't exist?\n" +
-            "Check " + __jiraConfig.issuesUrl + projectKey);
-    });
-});
-
-// Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var issueKey = message.match[1];
-    api.findIssue(issueKey).then(function (issue) {
-        bot.reply(message, issueKey +
-            "\n" + issue.fields.summary +
-            "\n Status: " + issue.fields.status.name +
-            "\n" + __jiraConfig.issuesUrl + issueKey);
-    }).catch(function (err) {
-        console.log(err);
-        bot.reply(message, "Sorry, couldn't find the issue for you.\n" +
-            "Maybe the issue doesn't exist?\n" +
-            "Check " + __jiraConfig.issuesUrl + issueKey);
-    });
-});
-
-
-// Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var match = message.match[1];
-    var issueKey = match.substring(0, match.indexOf(" ")).trim();
-    var transitionStr = match.substring(issueKey.length + 1, match.length).trim().toLowerCase();
-    var transitionId = __jiraConfig.transitions[transitionStr];
-    var transitionJSON = {
-        "transition": {
-            "id": transitionId
-        }
-    };
-    api.transitionIssue(issueKey, transitionJSON).then(function (issue) {
-        bot.reply(message, "Issue " + issueKey + " transitioned to " + transitionStr);
-    }).catch(function (err) {
-        console.log(err);
-        bot.reply(message, "Sorry, couldn't transition the issue for you.\n" +
-            "Either it doesn't exist or the transition type is wrong.\n" +
-            "Check " + api.JIRA_HOST + "/rest/api/2/issue/" + issueKey + "/transitions?expand=transitions.fields for available transitions and corresponding ids");
-    });
-});
-
-
-//Comment on issue
-controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
-    var match = message.match[1];
-    var issueKey = match.substring(0, match.indexOf(" ")).trim();
-    var commentStr = match.substring(issueKey.length + 1, match.length).trim();
-    console.log("commenting on issue " + issueKey);
-    console.log("comment to be added:\n" + commentStr);
-    var addCommentJSON = {
-        "body": {
-            "body": commentStr
-        }
-    };
-    api.addComment(issueKey, commentStr).then(function (response) {
-        bot.reply(message, "Comment added to " + issueKey + "\n" +
-            __jiraConfig.issuesUrl + issueKey);
-    }).catch(function (err) {
-        console.log(err);
-        bot.reply(message, "Sorry, couldn't add the comment for you.\n" +
-            "Maybe the Issue doesn't exist?\n" +
-            "Check " + __jiraConfig.issuesUrl + issueKey);
-    });
-});
-
-//===========
-// END JIRA INTEGRATION
-//===========
-
-
-controller.hears(["help", "-h", "--help", "?", "-?", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], function (bot, message) {
+//=====
+// HELP 
+//=====
+controller.hears(["help", "-h", "--help", "?", "-?", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], (bot, message) => {
     bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
 *Usage: [@bender] [command]* ((m) = requires @-mention of bender)
 
@@ -364,8 +91,68 @@ controller.hears(["help", "-h", "--help", "?", "-?", "what can you do", "command
 });
 
 
+//=======================
+// SHAREPOINT INTEGRATION
+//=======================
+//Create SPSite
+controller.hears(["new site (.*)", "create site (.*)", "Create-SPSite (.*)"], __config.Listeners.All, (bot, message) => sharepoint.createSPSite(bot, message));
+//Create CRM Lead
+controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"], __config.Listeners.All, (bot, message) => sharepoint.createCRMLead());
+
+
+// 8==============D
+// WHO AM I
+// 8==============D
+//list all props
+controller.hears(["currentuserinfo"], __config.Listeners.All, (bot, message) => helpers.getUserInfoBlob(bot, message));
+//list props nicely (not doing that right now)
+controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, (bot, message) => helpers.getCurrentUserInfo(bot, message));
+//Who is "user, f.ex U03QK793X"
+controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, message) => helpers.getUserInfo(bot, message));
+
+//===
+//bot commands
+//===
+//Say Hi
+controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hi!"));
+//Who's yo daddy?
+controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
+// 8 ball
+controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
+// Jokes
+controller.hears(['tell me a joke', 'joke'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, jokes.getJoke()));
+// Har mannen falt?
+controller.hears(['Mannen', 'mannen', 'Har mannen falt'], __config.Listeners.NonAmbient, (bot, message) => helpers.mannen(bot, message));
+// PostSecret
+controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Listeners.NonAmbient, (bot, message) => {
+    var msg = message.match[1];
+    var chn = message.match[2];
+    message.channel = chn;
+    console.log("Posting secretly on behalf of " + message.user);
+    console.log("Message: '" + msg + "' in channel: " + chn);
+    bot.reply(message, `postsecret: ${msg}`);
+});
+
+//========
+// Jira integration
+// =======
+//Syntax help
+controller.hears(['jira help', 'man jira', 'help jira'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.help(bot, message));
+// Create issue
+controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.createIssue(bot, message));
+// Find issue
+controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.findIssue(bot, message));
+// Transition issue
+controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.transitionIssue(bot, message));
+//Comment on issue
+controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.commentOnIssue(bot, message));
+//=====================
+// END JIRA INTEGRATION
+//=====================
+
+
 //Call me "name"
-controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', (bot, message) => {
     var name = message.match[1];
     controller.storage.users.get(message.user, function (err, user) {
         if (!user) {
@@ -381,7 +168,7 @@ controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_men
 });
 
 //Return name from storage
-controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_message,direct_mention,mention', function (bot, message) {
+controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_message,direct_mention,mention', (bot, message) => {
 
     controller.storage.users.get(message.user, function (err, user) {
         if (user && user.name) {
@@ -449,75 +236,24 @@ controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_messa
 //Uptime
 controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
     'direct_message,direct_mention,mention',
-    function (bot, message) {
-
+    (bot, message) => {
         var hostname = os.hostname();
         var uptime = helpers.formatUptime(process.uptime());
-
         bot.reply(message,
             "I'm " + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
-
     });
 
-controller.on('slash_command', function (bot, message) {
-    //Reply to slash command
-    bot.replyPublic(message, 'Everyone can see the results of this slash command');
-});
+controller.on('slash_command', (bot, message) => bot.replyPublic(message, 'Everyone can see the results of this slash command'));
 
 
 //Order Pizza
-controller.hears(['pizzatime'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
-    bot.startConversation(message, askFlavor);
-});
-
-askFlavor = function (response, convo) {
-    convo.ask("What flavor of pizza do you want?", function (response, convo) {
-        convo.say("Awesome.");
-        askSize(response, convo);
-        convo.next();
-    });
-}
-askSize = function (response, convo) {
-    convo.ask("What size do you want?", function (response, convo) {
-        convo.say("Ok.")
-        askWhereDeliver(response, convo);
-        convo.next();
-    });
-}
-askWhereDeliver = function (response, convo) {
-    convo.ask("So where do you want it delivered?", function (response, convo) {
-        convo.say("Smooth. Be there in a jiffy!");
-        convo.next();
-    });
-}
-
-//Insult OKMS
-controller.hears(['okms', 'OKMS'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
-    //  bot.startConversation(message, okmsWho);
-    bot.reply(message, ":fu:");
-});
+controller.hears(['pizzatime'], __config.Listeners.NonAmbient, (bot, message) => legacy.pizzatime(bot, message));
 
 //Reply to personal insults
-controller.hears(['fuck'], ["direct_message", "mention", "direct_mention"], function (bot, message) {
-    bot.reply(message, "Hey <@" + message.user + "> \n :fu:");
-});
-
-okmsWho = function (response, convo) {
-    convo.ask("OKMS... remind me again, who's that?", function (response, convo) {
-        convo.say("Aaah, right.");
-        okmsBought(response, convo);
-        convo.next();
-    });
-}
-okmsBought = function (response, convo) {
-    convo.ask("Yeah, and he bought like, a pair of QC35's at full price right?", function (response, convo) {
-        convo.say("LOL!")
-        convo.next();
-    });
-}
+controller.hears(['fuck'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hey <@" + message.user + "> \n :fu:"));
 
 //Russian roulette
-controller.hears("russian roulette", "ambient", function (bot, message) {
+controller.hears("russian roulette", "ambient", (bot, message) => {
     var roulette = Math.floor(6 * Math.random()) + 1;
     if (roulette == 1) {
         bot.reply(message, "*BANG*, <@" + message.user + ">, you're dead!");
@@ -527,7 +263,7 @@ controller.hears("russian roulette", "ambient", function (bot, message) {
 });
 
 //Russian roulette by proxy
-controller.hears("shoot (.*)", "ambient", function (bot, message) {
+controller.hears("shoot (.*)", "ambient", (bot, message) => {
     var userToShoot = message.match[1];
     var roulette = Math.floor(6 * Math.random()) + 1;
     if (roulette == 1) {
@@ -538,7 +274,7 @@ controller.hears("shoot (.*)", "ambient", function (bot, message) {
 });
 
 //GIPHY
-controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], __config.Listeners.NonAmbient, (bot, message) => {
     var q = message.match[1];
     if (q) {
         helpers.giphy(q, bot, message);
@@ -548,18 +284,18 @@ controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], ['direct_message', 'dir
 });
 
 //Slap user
-controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], (bot, message) => {
     var userToSlap = message.match[1];
     bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
 });
 
 //Svada
-controller.hears("Svada", ['direct_mention', 'mention'], function (bot, message) {
+controller.hears("Svada", ['direct_mention', 'mention'], (bot, message) => {
     bot.reply(message, helpers.svada());
 });
 
 //Throw two Dice
-controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], (bot, message) => {
     var dice1 = Math.floor(6 * Math.random() + 1);
     var dice2 = Math.floor(6 * Math.random() + 1);
     var name = helpers.craps(dice1, dice2);
@@ -568,33 +304,21 @@ controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention"
 });
 
 //Throw Dice
-controller.hears("dice", "ambient", function (bot, message) {
+controller.hears("dice", "ambient", (bot, message) => {
     var dice = Math.floor(6 * Math.random()) + 1;
-    bot.reply(message, "<@" + message.user + ">, you threw a " + dice);
+    bot.reply(message, "<@" + message.user + ">, you threw a " + dice)
 });
 
 //Battery nagging
-controller.hears("batteries", "ambient", function (bot, message) {
-    bot.reply(message, "Oh my god stop whining about those god damn batteries!");
-});
-
+controller.hears("batteries", "ambient", (bot, message) => bot.reply(message, "Oh my god stop whining about those god damn batteries!"));
 //TACOCAT
-controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], "ambient", function (bot, message) {
-    bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:");
-});
-
+controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], "ambient", (bot, message) => bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:"));
 //OLJEFONDET
-controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], "ambient", function (bot, message) {
-    helpers.nbim(bot, message);
-});
-
+controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], "ambient", (bot, message) => helpers.nbim(bot, message));
 //Pizza Party
-controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "mention", "direct_mention"], function (bot, message) {
-    bot.reply(message, ":pizza: PIZZA PARTY! :pizza: ");
-});
-
+controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "mention", "direct_mention"], (bot, message) => bot.reply(message, ":pizza: PIZZA PARTY! :pizza: "));
 //SKAM
-controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     request('http://skam.p3.no', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
@@ -603,9 +327,8 @@ controller.hears("SKAM", ["direct_message", "mention", "direct_mention"], functi
         }
     });
 });
-
 //DSSMENU
-controller.hears(["DSSMENU", "menu", "meny"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
     request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
@@ -616,23 +339,23 @@ controller.hears(["DSSMENU", "menu", "meny"], ["direct_message", "mention", "dir
 });
 
 // FULLCONTACT info retrieval - gets info on an email address or domain
-controller.hears("fullcontact (.*)", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears("fullcontact (.*)", __config.Listeners.NonAmbient, (bot, message) => {
     if (message.match[1]) {
         var query = message.match[1];
-        helpers.fullcontact(query, bot, message)
+        fullcontact.getInfo(query, bot, message)
     }
 });
 
 // FULLCONTACT info retrieval - gets info on an email address or domain
-controller.hears("fullcontactdebug (.*)", ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, message) => {
     if (message.match[1]) {
         var query = message.match[1].toLowerCase();
-        helpers.fullcontact(query, bot, message, true)
+        fullcontact.getInfo(query, bot, message, true)
     }
 });
 
 //AIBELMENU
-controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny", "Aibel"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny", "Aibel"], __config.Listeners.NonAmbient, (bot, message) => {
     request('http://www.coor.no/serviceside-aibel/lunch-menu/', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
@@ -663,32 +386,32 @@ controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny", "Aibel"], ["direct_me
 });
 
 //Latest polls
-controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, "Hang on, fetching latest polls...");
     helpers.getAveragePoll(bot, message);
 });
 
-controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how much is (.*)"], ["direct_message", "mention", "direct_mention"], function (bot, message) {
+controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how much is (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, "Hang on, fetching prices...");
     var productToFind = message.match[1];
     helpers.prisjakt(productToFind, bot, message);
 });
 
 //Generate guid
-controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], __config.Listeners.NonAmbient, (bot, message) => {
     var uuid = helpers.guid();
     bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
 });
 
 //Insult user
-controller.hears('insult (.*)', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) => {
     var userToInsult = message.match[1];
     var badname = helpers.randomBadName();
     bot.reply(message, "Hey " + userToInsult + ", you" + badname + ". <@" + message.user + "> sends his regards.")
 });
 
 // Is it friday?
-controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => {
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
@@ -698,6 +421,6 @@ controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention
 });
 
 //Mirror mirror
-controller.hears(["mirror mirror on the wall, who's the fairest one of all"], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+controller.hears(["mirror mirror on the wall, who's the fairest one of all"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, "Famed is thy beauty, <@" + message.user + ">. But hold, a lovely maid I see. Rags cannot hide her gentle grace. Alas, Nina is more fair than thee.");
 });
