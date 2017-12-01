@@ -20,6 +20,7 @@ var botkit = require('botkit'),
     http = require('http'),
     slackToken = process.env.SLACK_TOKEN,
     helpers = require('./lib/helpers'),
+    currency = require('./lib/currency'),
     fullcontact = require('./lib/fullcontact'),
     jira = require('./lib/jira'),
     jokes = require('./lib/jokes'),
@@ -37,14 +38,11 @@ bot.startRTM(function (err, bot, payload) {});
 
 //Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, function () {});
+    controller.createWebhookEndpoints(webserver, bot, () => {})
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
-setInterval(function () {
-    http.get("http://pzlbot.herokuapp.com");
-}, 300000);
-
+setInterval(() => http.get("http://pzlbot.herokuapp.com"), 300000);
 
 //===
 // CONFIG 
@@ -57,10 +55,10 @@ var __config = {
     }
 }
 
-//=====
+//=========
 // HELP 
-//=====
-controller.hears(["help", "-h", "--help", "?", "-?", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], (bot, message) => {
+//=========
+controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], (bot, message) => {
     bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
 *Usage: [@bender] [command]* ((m) = requires @-mention of bender)
 
@@ -109,6 +107,8 @@ controller.hears(["currentuserinfo"], __config.Listeners.All, (bot, message) => 
 controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, (bot, message) => helpers.getCurrentUserInfo(bot, message));
 //Who is "user, f.ex U03QK793X"
 controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, message) => helpers.getUserInfo(bot, message));
+//Currency exchange rate
+controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.All, (bot, message) => currency.getExchangeRate(bot, message));
 
 //===
 //bot commands
@@ -152,149 +152,47 @@ controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_me
 
 
 //Call me "name"
-controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention', (bot, message) => {
-    var name = message.match[1];
-    controller.storage.users.get(message.user, function (err, user) {
-        if (!user) {
-            user = {
-                id: message.user,
-            };
-        }
-        user.name = name;
-        controller.storage.users.save(user, function (err, id) {
-            bot.reply(message, "Got it. I'll call you " + user.name + " from now on.");
-        });
-    });
-});
+controller.hears(['call me (.*)', 'my name is (.*)'], __config.Listeners.NonAmbient, (bot, message) => legacy.callMe(controller, bot, message));
 
 //Return name from storage
-controller.hears(['what is my name', 'who am i', 'whats my name'], 'direct_message,direct_mention,mention', (bot, message) => {
-
-    controller.storage.users.get(message.user, function (err, user) {
-        if (user && user.name) {
-            bot.reply(message, 'Your name is ' + user.name);
-        } else {
-            bot.startConversation(message, function (err, convo) {
-                if (!err) {
-                    convo.say('I do not know your name yet!');
-                    convo.ask('What should I call you?', function (response, convo) {
-                        convo.ask('You want me to call you `' + response.text + '`?', [{
-                                pattern: 'yes',
-                                callback: function (response, convo) {
-                                    //Since no further messages are queued after this,
-                                    //The conversation will end naturally with status == 'completed'
-                                    convo.next();
-                                }
-                            },
-                            {
-                                pattern: 'no',
-                                callback: function (response, convo) {
-                                    //Stop the conversation. this will cause it to end with status == 'stopped'
-                                    convo.stop();
-                                }
-                            },
-                            {
-                                default: true,
-                                callback: function (response, convo) {
-                                    convo.repeat();
-                                    convo.next();
-                                }
-                            }
-                        ]);
-                        convo.next();
-                    }, {
-                        'key': 'nickname'
-                    }); //Store the results in a field called nickname
-
-                    convo.on('end', function (convo) {
-                        if (convo.status == 'completed') {
-                            bot.reply(message, 'OK! I will update my dossier...');
-
-                            controller.storage.users.get(message.user, function (err, user) {
-                                if (!user) {
-                                    user = {
-                                        id: message.user,
-                                    };
-                                }
-                                user.name = convo.extractResponse('nickname');
-                                controller.storage.users.save(user, function (err, id) {
-                                    bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
-                                });
-                            });
-                        } else {
-                            //This happens if the conversation ended prematurely for some reason
-                            bot.reply(message, 'OK, whatever then!');
-                        }
-                    });
-                }
-            });
-        }
-    });
-});
+controller.hears(['what is my name', 'who am i', 'whats my name'], __config.Listeners.NonAmbient, (bot, message) => legacy.whatsMyName(controller, bot, message));
 
 
 //Uptime
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,direct_mention,mention',
-    (bot, message) => {
-        var hostname = os.hostname();
-        var uptime = helpers.formatUptime(process.uptime());
-        bot.reply(message,
-            "I'm " + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
-    });
-
+controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], __config.Listeners.NonAmbient, (bot, message) => {
+    var hostname = os.hostname(),
+        uptime = helpers.formatUptime(process.uptime());
+    bot.reply(message, "I'm " + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
+});
+//Slash commmand
 controller.on('slash_command', (bot, message) => bot.replyPublic(message, 'Everyone can see the results of this slash command'));
-
-
 //Order Pizza
 controller.hears(['pizzatime'], __config.Listeners.NonAmbient, (bot, message) => legacy.pizzatime(bot, message));
-
 //Reply to personal insults
 controller.hears(['fuck'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hey <@" + message.user + "> \n :fu:"));
-
 //Russian roulette
 controller.hears("russian roulette", "ambient", (bot, message) => {
-    var roulette = Math.floor(6 * Math.random()) + 1;
-    if (roulette == 1) {
-        bot.reply(message, "*BANG*, <@" + message.user + ">, you're dead!");
-    } else {
+    (Math.floor(6 * Math.random())) == 0 ?
+        bot.reply(message, "*BANG*, <@" + message.user + ">, you're dead!") :
         bot.reply(message, "*click*. Whew, <@" + message.user + ">, you'll live.");
-    }
 });
-
 //Russian roulette by proxy
 controller.hears("shoot (.*)", "ambient", (bot, message) => {
-    var userToShoot = message.match[1];
-    var roulette = Math.floor(6 * Math.random()) + 1;
-    if (roulette == 1) {
-        bot.reply(message, "*BANG*, " + userToShoot + ", you're dead, and it's all <@" + message.user + ">'s fault");
-    } else {
-        bot.reply(message, "*click*. Whew, " + userToShoot + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
-    }
+    (Math.floor(6 * Math.random())) == 0 ?
+        bot.reply(message, "*BANG*, " + message.match[1] + ", you're dead, and it's all <@" + message.user + ">'s fault") :
+        bot.reply(message, "*click*. Whew, " + message.match[1] + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
 });
-
 //GIPHY
 controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], __config.Listeners.NonAmbient, (bot, message) => {
     var q = message.match[1];
-    if (q) {
-        helpers.giphy(q, bot, message);
-    } else {
-        bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
-    }
+    if (q) helpers.giphy(q, bot, message);
+    else bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
 });
-
 //Slap user
-controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], (bot, message) => {
-    var userToSlap = message.match[1];
-    bot.reply(message, "*_slaps " + userToSlap + " around a bit with a big trout_*");
-});
-
+controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], (bot, message) => bot.reply(message, "*_slaps " + message.match[1] + " around a bit with a big trout_*"));
 //Svada
-controller.hears("Svada", ['direct_mention', 'mention'], (bot, message) => {
-    bot.reply(message, helpers.svada());
-});
-
-//Throw two Dice
+controller.hears("Svada", ['direct_mention', 'mention'], (bot, message) => bot.reply(message, helpers.svada()));
+//Craps
 controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], (bot, message) => {
     var dice1 = Math.floor(6 * Math.random() + 1);
     var dice2 = Math.floor(6 * Math.random() + 1);
@@ -304,11 +202,7 @@ controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention"
 });
 
 //Throw Dice
-controller.hears("dice", "ambient", (bot, message) => {
-    var dice = Math.floor(6 * Math.random()) + 1;
-    bot.reply(message, "<@" + message.user + ">, you threw a " + dice)
-});
-
+controller.hears("dice", "ambient", (bot, message) => bot.reply(message, `<@${message.user}>, you threw a ${(Math.floor(6 * Math.random()) + 1)}`));
 //Battery nagging
 controller.hears("batteries", "ambient", (bot, message) => bot.reply(message, "Oh my god stop whining about those god damn batteries!"));
 //TACOCAT
@@ -398,11 +292,8 @@ controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how
 });
 
 //Generate guid
-controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], __config.Listeners.NonAmbient, (bot, message) => {
-    var uuid = helpers.guid();
-    bot.reply(message, "I've got a fresh guid for ya, <@" + message.user + ">: " + uuid);
-});
-
+controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], __config.Listeners.NonAmbient, (bot, message) =>
+    bot.reply(message, `I've got a fresh guid for ya, <@${message.user}>: ${(helpers.guid())}`));
 //Insult user
 controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) => {
     var userToInsult = message.match[1];
