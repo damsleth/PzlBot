@@ -1,16 +1,10 @@
 //===
 // BENDER the Pzl Slack bot v1.2 November 2017
-// Last updated 27.11.2017 by @damsleth
+// Last updated 01.12.2017 by @damsleth
 //===
 
 //Check if there's a slack token, if not, we're probably debugging, so load dotenv
 if (!process.env.SLACK_TOKEN) require('dotenv').config();
-
-//Spawn bot
-// TODO PUT ALL REQUIRES IN ITS OWN FILE 
-// LIKE
-// vars = [["foo","bar"],["lol","wut"],["brah","nah"]];
-// vars.forEach(v=>(this[v[0]] = v[1]));
 
 var botkit = require('botkit'),
     fs = require('fs'),
@@ -58,7 +52,7 @@ var __config = {
 //=========
 // HELP 
 //=========
-controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"], ['direct_mention', 'mention'], (bot, message) => {
+controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
 *Usage: [@bender] [command]* ((m) = requires @-mention of bender)
 
@@ -94,6 +88,7 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 //=======================
 //Create SPSite
 controller.hears(["new site (.*)", "create site (.*)", "Create-SPSite (.*)"], __config.Listeners.All, (bot, message) => sharepoint.createSPSite(bot, message));
+
 //Create CRM Lead
 controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"], __config.Listeners.All, (bot, message) => sharepoint.createCRMLead());
 
@@ -101,28 +96,38 @@ controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Crea
 // 8==============D
 // WHO AM I
 // 8==============D
+
 //list all props
 controller.hears(["currentuserinfo"], __config.Listeners.All, (bot, message) => helpers.getUserInfoBlob(bot, message));
+
 //list props nicely (not doing that right now)
 controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, (bot, message) => helpers.getCurrentUserInfo(bot, message));
+
 //Who is "user, f.ex U03QK793X"
 controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, message) => helpers.getUserInfo(bot, message));
+
 //Currency exchange rate
-controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.All, (bot, message) => currency.getExchangeRate(bot, message));
+controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
 
 //===
 //bot commands
 //===
+
 //Say Hi
 controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hi!"));
+
 //Who's yo daddy?
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
+
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
+
 // Jokes
 controller.hears(['tell me a joke', 'joke'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, jokes.getJoke()));
+
 // Har mannen falt?
 controller.hears(['Mannen', 'mannen', 'Har mannen falt'], __config.Listeners.NonAmbient, (bot, message) => helpers.mannen(bot, message));
+
 // PostSecret
 controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Listeners.NonAmbient, (bot, message) => {
     var msg = message.match[1];
@@ -136,16 +141,22 @@ controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Lis
 //========
 // Jira integration
 // =======
+
 //Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.help(bot, message));
+controller.hears(['jira help', 'man jira', 'help jira'], __config.Listeners.All, (bot, message) => jira.help(bot, message));
+
 // Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.createIssue(bot, message));
+controller.hears(['jira new (.*)', 'jira create (.*)'], __config.Listeners.All, (bot, message) => jira.createIssue(bot, message));
+
 // Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.findIssue(bot, message));
+controller.hears(['jira get (.*)', 'jira find (.*)'], __config.Listeners.All, (bot, message) => jira.findIssue(bot, message));
+
 // Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.transitionIssue(bot, message));
+controller.hears(['jira set (.*)', 'jira transition (.*)'], __config.Listeners.All, (bot, message) => jira.transitionIssue(bot, message));
+
 //Comment on issue
-controller.hears(['jira comment (.*)'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => jira.commentOnIssue(bot, message));
+controller.hears(['jira comment (.*)'], __config.Listeners.All, (bot, message) => jira.commentOnIssue(bot, message));
+
 //=====================
 // END JIRA INTEGRATION
 //=====================
@@ -157,43 +168,51 @@ controller.hears(['call me (.*)', 'my name is (.*)'], __config.Listeners.NonAmbi
 //Return name from storage
 controller.hears(['what is my name', 'who am i', 'whats my name'], __config.Listeners.NonAmbient, (bot, message) => legacy.whatsMyName(controller, bot, message));
 
-
 //Uptime
 controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], __config.Listeners.NonAmbient, (bot, message) => {
     var hostname = os.hostname(),
         uptime = helpers.formatUptime(process.uptime());
     bot.reply(message, "I'm " + bot.identity.name + ", bitch!" + " I've been running for " + uptime + ".");
 });
+
 //Slash commmand
 controller.on('slash_command', (bot, message) => bot.replyPublic(message, 'Everyone can see the results of this slash command'));
+
 //Order Pizza
 controller.hears(['pizzatime'], __config.Listeners.NonAmbient, (bot, message) => legacy.pizzatime(bot, message));
+
 //Reply to personal insults
 controller.hears(['fuck'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hey <@" + message.user + "> \n :fu:"));
+
 //Russian roulette
-controller.hears("russian roulette", "ambient", (bot, message) => {
+controller.hears("russian roulette", __config.Listeners.All, (bot, message) => {
     (Math.floor(6 * Math.random())) == 0 ?
         bot.reply(message, "*BANG*, <@" + message.user + ">, you're dead!") :
         bot.reply(message, "*click*. Whew, <@" + message.user + ">, you'll live.");
 });
+
 //Russian roulette by proxy
-controller.hears("shoot (.*)", "ambient", (bot, message) => {
+controller.hears("shoot (.*)", __config.Listeners.All, (bot, message) => {
     (Math.floor(6 * Math.random())) == 0 ?
         bot.reply(message, "*BANG*, " + message.match[1] + ", you're dead, and it's all <@" + message.user + ">'s fault") :
         bot.reply(message, "*click*. Whew, " + message.match[1] + ", you're lucky <@" + message.user + "> didn't have one in the chamber");
 });
+
 //GIPHY
 controller.hears(["giphy (.*)", "gif (.*)", "(.*).gif"], __config.Listeners.NonAmbient, (bot, message) => {
     var q = message.match[1];
     if (q) helpers.giphy(q, bot, message);
     else bot.reply(message, "You gotta specify a keyword for your giphy, dummy");
 });
+
 //Slap user
-controller.hears("slap (.*)", ['ambient', 'direct_mention', 'mention'], (bot, message) => bot.reply(message, "*_slaps " + message.match[1] + " around a bit with a big trout_*"));
+controller.hears("slap (.*)", __config.Listeners.All, (bot, message) => bot.reply(message, "*_slaps " + message.match[1] + " around a bit with a big trout_*"));
+
 //Svada
-controller.hears("Svada", ['direct_mention', 'mention'], (bot, message) => bot.reply(message, helpers.svada()));
+controller.hears("Svada", __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.svada()));
+
 //Craps
-controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention", "direct_mention"], (bot, message) => {
+controller.hears(["two dices", "craps"], __config.Listeners.All, (bot, message) => {
     var dice1 = Math.floor(6 * Math.random() + 1);
     var dice2 = Math.floor(6 * Math.random() + 1);
     var name = helpers.craps(dice1, dice2);
@@ -202,15 +221,20 @@ controller.hears(["two dices", "craps"], ["ambient", "direct_message", "mention"
 });
 
 //Throw Dice
-controller.hears("dice", "ambient", (bot, message) => bot.reply(message, `<@${message.user}>, you threw a ${(Math.floor(6 * Math.random()) + 1)}`));
+controller.hears("dice", __config.Listeners.All, (bot, message) => bot.reply(message, `<@${message.user}>, you threw a ${(Math.floor(6 * Math.random()) + 1)}`));
+
 //Battery nagging
-controller.hears("batteries", "ambient", (bot, message) => bot.reply(message, "Oh my god stop whining about those god damn batteries!"));
+controller.hears("batteries", __config.Listeners.All, (bot, message) => bot.reply(message, "Oh my god stop whining about those god damn batteries!"));
+
 //TACOCAT
-controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], "ambient", (bot, message) => bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:"));
+controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], __config.Listeners.All, (bot, message) => bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:"));
+
 //OLJEFONDET
-controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], "ambient", (bot, message) => helpers.nbim(bot, message));
+controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], __config.Listeners.All, (bot, message) => helpers.nbim(bot, message));
+
 //Pizza Party
-controller.hears(["pizza party", "pizzaparty"], ["ambient", "direct_message", "mention", "direct_mention"], (bot, message) => bot.reply(message, ":pizza: PIZZA PARTY! :pizza: "));
+controller.hears(["pizza party", "pizzaparty"], __config.Listeners.All, (bot, message) => bot.reply(message, ":pizza: PIZZA PARTY! :pizza: "));
+
 //SKAM
 controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     request('http://skam.p3.no', function (error, response, body) {
@@ -221,6 +245,7 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
         }
     });
 });
+
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
     request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
@@ -285,6 +310,7 @@ controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers",
     helpers.getAveragePoll(bot, message);
 });
 
+//Prisjakt
 controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how much is (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, "Hang on, fetching prices...");
     var productToFind = message.match[1];
@@ -294,6 +320,7 @@ controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how
 //Generate guid
 controller.hears(['guid', 'generate guid', 'give me a guid', 'i need a guid'], __config.Listeners.NonAmbient, (bot, message) =>
     bot.reply(message, `I've got a fresh guid for ya, <@${message.user}>: ${(helpers.guid())}`));
+
 //Insult user
 controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) => {
     var userToInsult = message.match[1];
@@ -302,7 +329,7 @@ controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) =>
 });
 
 // Is it friday?
-controller.hears(['is it friday'], ['ambient', 'direct_message', 'direct_mention', 'mention'], (bot, message) => {
+controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
     var iif = helpers.isItFriday();
     var iifBool = helpers.isItFriday(true);
     if (iifBool) {
