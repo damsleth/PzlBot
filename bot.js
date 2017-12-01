@@ -20,8 +20,12 @@ var botkit = require('botkit'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
     sharepoint = require('./lib/sharepoint'),
+    mongoStorage = require('botkit-storage-mongo')({
+        mongoUri: process.env.MONGOURI
+    }),
     controller = botkit.slackbot({
-        debug: false
+        debug: false,
+        storage: mongoStorage
     }),
     bot = controller.spawn({
         token: slackToken
