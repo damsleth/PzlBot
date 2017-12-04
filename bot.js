@@ -1,7 +1,41 @@
-//===
-// BENDER the Pzl Slack bot v1.2 November 2017
+//=============================================
+// BENDER the Pzl Slack bot
 // Last updated 01.12.2017 by @damsleth
-//===
+//===========================================
+
+bender = `
+
+            i@di      
+             @CR       
+             @SC       
+             RSC      
+             @KCi      
+             #KC7i     
+             RSCQ@i     
+            @%GC(CC7Q/  
+          #@K%C6QKCCCCC6@            
+       (@%CC3%C3CCCC%CCCC6Q          
+      GCCCC%C3CCCC66CCCsCCC@
+     @6%CCCCCOC6CCCsCCC66O%s@     
+     sCCC666CCCCC6%CCCC%CCsRG%#7     
+     C6%C63CRQGC3C77CC%7(t((t((7Q^   
+     sC3CC@C((CCt((7QG#K#@@@@@@@@G7Q 
+     S6CCO#(t((@%/%O@@@@@@O(//R@@sCC
+     QsCC6stCC(%@        RC      @@s@            
+     @OCCC%((CC%R/       QC      @@7@       
+     @s3CCCQC(CCt%%GQRQQQ##QGCG((7R    
+     Gs6C6CCCCCCCCCCCCs6CC6CsssC3       
+     /@CCC3Cs3GSQQQ#CCQRGQS@ss@Q       
+      @3%C@@(@///%///(((((((()          
+      @CCCCOR/(@(O%O%%((((((()       
+      GCCCCs@%(@///%////(((()         
+      CCCCCCG@(@%%CQ%%%%O(/#C        
+      sC3C%CCCCGGQQ#QQGGG6CC#@       
+    @((%@#3CC3CC%C3CC%CCCCsQC((Q7    
+  #Qt((t((7%Q#R@CCQK@Q#QG37((t((7@ 
+%7t((((t((((tt(((((((CC(t(tt(t((t((#C   
+
+`;
 
 //Check if there's a slack token, if not, we're probably debugging, so load dotenv
 if (!process.env.SLACK_TOKEN) require('dotenv').config();
@@ -9,18 +43,27 @@ if (!process.env.SLACK_TOKEN) require('dotenv').config();
 var botkit = require('botkit'),
     fs = require('fs'),
     cheerio = require('cheerio'),
+    fetch = require('node-fetch'),
     request = require('request'),
     os = require('os'),
     http = require('http'),
     slackToken = process.env.SLACK_TOKEN,
+    witToken = process.env.WIT_SERVER_ACCESS_TOKEN,
     helpers = require('./lib/helpers'),
+    wit = require('./lib/wit'),
     currency = require('./lib/currency'),
     fullcontact = require('./lib/fullcontact'),
     jira = require('./lib/jira'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
-    sharepoint = require('./lib/sharepoint'),
-    mongoStorage = require('botkit-storage-mongo')({
+    sharepoint = require('./lib/sharepoint');
+
+var Wit = require('wit-js');
+var client = new Wit.Client({
+    apiToken: witToken
+});
+
+var mongoStorage = require('botkit-storage-mongo')({
         mongoUri: process.env.MONGOURI
     }),
     controller = botkit.slackbot({
@@ -52,6 +95,37 @@ var __config = {
         NonAmbient: ["direct_message", "direct_mention", "mention"],
     }
 }
+
+
+//=======================
+// GLOBAL HELPER METHODS
+//=======================
+
+// CHANNELS
+function allChannels() {
+    return fetch(`https://slack.com/api/channels.list?token=${slackToken}`).then(j => j.json().then(res => res.channels.filter(chan => chan.is_archived === false)));
+}
+
+// USERS
+function allUsers() {
+    return fetch(`https://slack.com/api/users.list?token=${slackToken}`).then(j => j.json().then(users => users.members.filter(user => user.deleted === false)));
+}
+
+
+//========================
+// WIT.AI INTEGRATION - WIT-JS
+//========================
+
+controller.hears(['wit (.*)', 'sentiment (.*)', 'analyze (.*)', 'ai (.*)'], 'direct_message,direct_mention', function (bot, message) {
+    var msg = message.match[1];
+    client.message(msg, {}).then(response => {
+        console.log(response.entities);
+        wit.analyze(response, bot, message);
+    }).catch(err => {
+        console.error(err);
+        bot.reply(message, "_[machine learning error!]_");
+    })
+});
 
 //=========
 // HELP 
@@ -85,7 +159,6 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 *whois [username]*: Get a specific user's info
 `);
 });
-
 
 //=======================
 // SHAREPOINT INTEGRATION
@@ -238,6 +311,24 @@ controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjons
 
 //Pizza Party
 controller.hears(["pizza party", "pizzaparty"], __config.Listeners.All, (bot, message) => bot.reply(message, ":pizza: PIZZA PARTY! :pizza: "));
+
+// get channels by name
+controller.hears(["GetChannelByName (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
+    var channelName = message.match[1];
+    console.log("getting channel " + channelName)
+    fetch(`https://slack.com/api/channels.list?token=${slackToken}`).then(j => j.json().then(res => {
+        var channel = res.channels.filter(chan => (chan.name == channelName))[0];
+        console.log(channel);
+        if (channel) bot.reply(message, JSON.stringify(channel));
+        else bot.reply(message, `couldn't find channel with name ${channelName}`);
+    }))
+});
+
+controller.hears("GetAllChannels()", __config.Listeners.NonAmbient, (bot, message) => allChannels().then(all => bot.reply(message, JSON.stringify(all))));
+controller.hears("GetAllUsers()", __config.Listeners.NonAmbient, (bot, message) => allUsers().then(all => bot.reply(message, JSON.stringify(all))));
+
+// Nei / Jo
+controller.hears("n(.*)i", __config.Listeners.All, (bot, message) => (message.text.length === 3 || message.text.indexOf("nei") > -1) ? bot.reply(message, "Jo") : null);
 
 //SKAM
 controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
