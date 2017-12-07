@@ -185,6 +185,7 @@ controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, me
 
 //Currency exchange rate
 controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
+controller.hears(["IOTA", "IOT"], __config.Listeners.All, (bot, message) => message.text.length === 4 || message.text.length === 3 ? currency.getIOTA(bot, message) : null);
 
 //===
 //bot commands
@@ -327,8 +328,8 @@ controller.hears(["GetChannelByName (.*)"], __config.Listeners.NonAmbient, (bot,
 controller.hears("GetAllChannels()", __config.Listeners.NonAmbient, (bot, message) => allChannels().then(all => bot.reply(message, JSON.stringify(all))));
 controller.hears("GetAllUsers()", __config.Listeners.NonAmbient, (bot, message) => allUsers().then(all => bot.reply(message, JSON.stringify(all))));
 
-// Nei / Jo
-controller.hears("n(.*)i", __config.Listeners.All, (bot, message) => (message.text.length === 3 || message.text.indexOf("nei") > -1) ? bot.reply(message, "Jo") : null);
+// Nei / Jo - disabled because annoying
+//controller.hears("n(.*)i", __config.Listeners.NonAmbient, (bot, message) => (message.text.length === 3 || message.text.indexOf("nei") > -1) ? bot.reply(message, "Jo") : null);
 
 //SKAM
 controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
