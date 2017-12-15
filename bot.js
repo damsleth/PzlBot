@@ -187,6 +187,8 @@ controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, me
 controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
 controller.hears(["IOTA", "IOT"], __config.Listeners.All, (bot, message) => message.text.length === 4 || message.text.length === 3 ? currency.getIOTA(bot, message) : null);
 
+controller.hears(["$ (.*)"], __config.Listeners.All, (bot, message) => currency.getExchangeRateCMC(bot, message));
+
 controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) => helpers.setTopic(bot, message));
 
 //===
