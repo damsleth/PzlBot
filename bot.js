@@ -56,7 +56,8 @@ var botkit = require('botkit'),
     jira = require('./lib/jira'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
-    sharepoint = require('./lib/sharepoint');
+    sharepoint = require('./lib/sharepoint'),
+    search = require('./lib/search');
 
 var Wit = require('wit-js');
 var client = new Wit.Client({
@@ -64,8 +65,8 @@ var client = new Wit.Client({
 });
 
 var mongoStorage = require('botkit-storage-mongo')({
-        mongoUri: process.env.MONGOURI
-    }),
+    mongoUri: process.env.MONGOURI
+}),
     controller = botkit.slackbot({
         debug: false,
         storage: mongoStorage
@@ -75,11 +76,11 @@ var mongoStorage = require('botkit-storage-mongo')({
     });
 
 //Start Slack RTM
-bot.startRTM(function (err, bot, payload) {});
+bot.startRTM(function (err, bot, payload) { });
 
 //Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, () => {})
+    controller.createWebhookEndpoints(webserver, bot, () => { })
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
@@ -116,7 +117,7 @@ function allUsers() {
 // WIT.AI INTEGRATION - WIT-JS
 //========================
 
-controller.hears(['wit (.*)', 'sentiment (.*)', 'analyze (.*)', 'ai (.*)'], 'direct_message,direct_mention', function (bot, message) {
+controller.hears(['wit (.*)', 'sentiment (.*)', 'analyze (.*)', 'ai (.*)'], __config.Listeners.All, function (bot, message) {
     var msg = message.match[1];
     client.message(msg, {}).then(response => {
         console.log(response.entities);
@@ -246,6 +247,9 @@ controller.hears(['jira comment (.*)'], __config.Listeners.All, (bot, message) =
 
 //Call me "name"
 controller.hears(['call me (.*)', 'my name is (.*)'], __config.Listeners.NonAmbient, (bot, message) => legacy.callMe(controller, bot, message));
+
+//Google search
+controller.hears(['google (.*)', 'google (.*) params:(.*)'], __config.Listeners.NonAmbient, (bot, message) => search.getSearchResultsJSON(bot, message));
 
 //Return name from storage
 controller.hears(['what is my name', 'who am i', 'whats my name'], __config.Listeners.NonAmbient, (bot, message) => legacy.whatsMyName(controller, bot, message));
