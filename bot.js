@@ -218,7 +218,7 @@ controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Lis
     message.channel = chn;
     console.log("Posting secretly on behalf of " + message.user);
     console.log("Message: '" + msg + "' in channel: " + chn);
-    bot.reply(message, `postsecret: ${msg}`);
+    bot.reply(message, `ps: ${msg}`);
 });
 
 //========
