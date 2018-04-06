@@ -196,9 +196,6 @@ controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) 
 //bot commands
 //===
 
-//Say Hi
-controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hi!"));
-
 //Who's yo daddy?
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
 
@@ -441,6 +438,9 @@ controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
     }
     bot.reply(message, helpers.isItFriday());
 });
+
+//Say Hi
+controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hi!"));
 
 //Mirror mirror
 controller.hears(["mirror mirror on the wall, who's the fairest one of all"], __config.Listeners.NonAmbient, (bot, message) => {
