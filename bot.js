@@ -347,6 +347,17 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     });
 });
 
+//SKAM
+controller.hears("BLANK", __config.Listeners.NonAmbient, (bot, message) => {
+    request('http://blank.p3.no', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var $ = cheerio.load(body);
+            var updates = $('.byline').text();
+            bot.reply(message, "Siste BLANK-oppdateringer \n" + updates);
+        }
+    });
+});
+
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
     request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
