@@ -347,16 +347,22 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     });
 });
 
-//SKAM
-controller.hears("BLANK", __config.Listeners.NonAmbient, (bot, message) => {
-    request('http://blank.p3.no', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var $ = cheerio.load(body);
-            var updates = $('.byline').text();
-            bot.reply(message, "Siste BLANK-oppdateringer \n" + updates);
-        }
-    });
-});
+//BLANK - TODO
+// controller.hears("BLANK", __config.Listeners.NonAmbient, (bot, message) => {
+//     request('http://blank.p3.no', function (error, response, body) {
+//         if (!error && response.statusCode == 200) {
+//             var $ = cheerio.load(body);
+//             links = [].slice.call(body.querySelectorAll(".byline")).map(byline=>{
+//                 let a = byline.querySelector("a")
+//                 let allA = byline.querySelectorAll("a")
+//                 if(allA.length > 1){ return `${[].slice.call(allA)[1].innerText.trim()} - ${a.attributes.href.value}`}
+//                 else return `${a.innerText.trim()} - ${a.attributes.href.value}`
+//                 })
+//             var updates = $('.byline').text();
+//             bot.reply(message, "Siste BLANK-oppdateringer \n" + updates);
+//         }
+//     });
+// });
 
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
