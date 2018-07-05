@@ -366,24 +366,26 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
 
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
+    if (new Date().getDay > 5) { bot.reply(message, "No lunch on weekends, brah"); }
+
     request('https://dep.m-eating.no/kantine/index.php?get_unit_id=4', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
+
+            function GetFoodInfo(foodNr) {
+                var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
+                if (!foodNode || !foodNode.childNodes) return null
+                var foodNodeArr = [].slice.call(foodNode.childNodes)
+                var foodInfo = foodNodeArr.filter(e => e.innerText ? e.innerText.trim() ? true : false : false).map(e => e.innerText).join("\n")
+                return foodInfo
+            }
+
             var suppe = `*Suppe:* ${GetFoodInfo(2)}`
             var varmmat = `*Varmmat:* ${GetFoodInfo(3)}`
             var menu = suppe + "\n" + varmmat
             bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
-    function GetFoodInfo(foodNr) {
-        var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
-        if (!foodNode || !foodNode.childNodes) return null
-        var foodNodeArr = [].slice.call(foodNode.childNodes)
-        var foodInfo = foodNodeArr
-            .filter(e => e.innerText ? e.innerText.trim() ? true : false : false)
-            .map(e => e.innerText).join("\n")
-        return foodInfo
-    }
 });
 
 // FULLCONTACT info retrieval - gets info on an email address or domain
