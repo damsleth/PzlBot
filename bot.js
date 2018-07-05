@@ -1,6 +1,6 @@
 //=============================================
 // BENDER the Pzl Slack bot
-// Last updated 01.12.2017 by @damsleth
+// Last updated 05.07.2017 by @damsleth
 //===========================================
 
 bender = `
@@ -86,9 +86,9 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 //Keepalive, else the dyno will fall asleep after some minutes.
 setInterval(() => http.get("http://pzlbot.herokuapp.com"), 300000);
 
-//===
+//=======================
 // CONFIG 
-//===
+//=======================
 
 var __config = {
     Listeners: {
@@ -128,9 +128,9 @@ controller.hears(['wit (.*)', 'sentiment (.*)', 'analyze (.*)', 'ai (.*)'], __co
     })
 });
 
-//=========
+//=======================
 // HELP 
-//=========
+//=======================
 controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
 *Usage: [@bender] [command]* ((m) = requires @-mention of bender)
@@ -192,9 +192,9 @@ controller.hears(["crypto (.*)"], __config.Listeners.All, (bot, message) => curr
 
 controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) => helpers.setTopic(bot, message));
 
-//===
+//=======================
 //bot commands
-//===
+//=======================
 
 //Who's yo daddy?
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
@@ -218,9 +218,9 @@ controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Lis
     bot.reply(message, `ps: ${msg}`);
 });
 
-//========
+//=======================
 // Jira integration
-// =======
+// //=======================
 
 //Syntax help
 controller.hears(['jira help', 'man jira', 'help jira'], __config.Listeners.All, (bot, message) => jira.help(bot, message));
@@ -366,13 +366,24 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
 
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-    request('http://regjering.delimeeting.imaker.no/menyer/ukesmeny', function (error, response, body) {
+    request('https://dep.m-eating.no/kantine/index.php?get_unit_id=4', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
-            var menu = $('.ukesmeny td:nth-child(' + new Date().getDay() + ')').text();
+            var suppe = `*Suppe:* ${GetFoodInfo(2)}`
+            var varmmat = `*Varmmat:* ${GetFoodInfo(3)}`
+            var menu = suppe + "\n" + varmmat
             bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
+    function GetFoodInfo(foodNr) {
+        var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
+        if (!foodNode || !foodNode.childNodes) return null
+        var foodNodeArr = [].slice.call(foodNode.childNodes)
+        var foodInfo = foodNodeArr
+            .filter(e => e.innerText ? e.innerText.trim() ? true : false : false)
+            .map(e => e.innerText).join("\n")
+        return foodInfo
+    }
 });
 
 // FULLCONTACT info retrieval - gets info on an email address or domain
