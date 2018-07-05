@@ -375,7 +375,7 @@ controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bo
             function GetFoodInfo(foodNr) {
                 var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
                 if (!foodNode.length || !foodNode.children().length) { return null }
-                var foodInfo = ""
+                var foodInfo = []
                 foodNode.children().each(function (i, e) { foodInfo[i] = $(this).text() });
                 foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
                 return foodInfo
