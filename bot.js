@@ -374,9 +374,10 @@ controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bo
 
             function GetFoodInfo(foodNr) {
                 var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
-                if (!foodNode || !foodNode.childNodes) return null
-                var foodNodeArr = [].slice.call(foodNode.childNodes)
-                var foodInfo = foodNodeArr.filter(e => e.innerText ? e.innerText.trim() ? true : false : false).map(e => e.innerText).join("\n")
+                if (!foodNode.length || !foodNode.children().length) { return null }
+                var foodInfo = ""
+                foodNode.children().each(function (i, e) { foodInfo[i] = $(this).text() });
+                foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
                 return foodInfo
             }
 
@@ -461,9 +462,7 @@ controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) =>
 
 // Is it friday?
 controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
-    var iif = helpers.isItFriday();
-    var iifBool = helpers.isItFriday(true);
-    if (iifBool) {
+    if (helpers.isItFriday(true)) {
         helpers.giphy("friday", bot, message);
     }
     bot.reply(message, helpers.isItFriday());
