@@ -117,14 +117,14 @@ function allUsers() {
 // WIT.AI INTEGRATION - WIT-JS
 //========================
 
-controller.hears(['wit (.*)', 'sentiment (.*)', 'analyze (.*)', 'ai (.*)'], __config.Listeners.All, function (bot, message) {
+controller.hears(['analyze (.*)'], __config.Listeners.All, function (bot, message) {
     var msg = message.match[1];
     client.message(msg, {}).then(response => {
         console.log(response.entities);
         wit.analyze(response, bot, message);
     }).catch(err => {
         console.error(err);
-        bot.reply(message, "_[machine learning error!]_");
+        bot.reply(message, "_[machine learning error]_");
     })
 });
 
@@ -164,10 +164,10 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 //=======================
 // SHAREPOINT INTEGRATION
 //=======================
-//Create SPSite
+// Create SPSite
 controller.hears(["new site (.*)", "create site (.*)", "Create-SPSite (.*)"], __config.Listeners.All, (bot, message) => sharepoint.createSPSite(bot, message));
 
-//Create CRM Lead
+// Create CRM Lead
 controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"], __config.Listeners.All, (bot, message) => sharepoint.createCRMLead());
 
 
@@ -175,16 +175,16 @@ controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Crea
 // WHO AM I
 // 8==============D
 
-//list all props
+// list all props
 controller.hears(["currentuserinfo"], __config.Listeners.All, (bot, message) => helpers.getUserInfoBlob(bot, message));
 
-//list props nicely (not doing that right now)
+// list props nicely (not doing that right now)
 controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __config.Listeners.All, (bot, message) => helpers.getCurrentUserInfo(bot, message));
 
-//Who is "user, f.ex U03QK793X"
+// Who is "user, f.ex U03QK793X"
 controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, message) => helpers.getUserInfo(bot, message));
 
-//Currency exchange rate
+// Currency exchange rate
 controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
 controller.hears(["IOTA", "IOT"], __config.Listeners.All, (bot, message) => message.text.length === 4 || message.text.length === 3 ? currency.getIOTA(bot, message) : null);
 
@@ -196,8 +196,11 @@ controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) 
 //bot commands
 //=======================
 
-//Who's yo daddy?
+// Who's yo daddy?
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
+
+// Smash Like
+controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => bot.reply(message, "Ding the bell!"));
 
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
