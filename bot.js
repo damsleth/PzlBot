@@ -65,8 +65,8 @@ var client = new Wit.Client({
 });
 
 var mongoStorage = require('botkit-storage-mongo')({
-    mongoUri: process.env.MONGOURI
-}),
+        mongoUri: process.env.MONGOURI
+    }),
     controller = botkit.slackbot({
         debug: false,
         storage: mongoStorage
@@ -76,11 +76,11 @@ var mongoStorage = require('botkit-storage-mongo')({
     });
 
 //Start Slack RTM
-bot.startRTM(function (err, bot, payload) { });
+bot.startRTM(function (err, bot, payload) {});
 
 //Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, () => { })
+    controller.createWebhookEndpoints(webserver, bot, () => {})
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
@@ -200,7 +200,9 @@ controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) 
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
 
 // Smash Like
-controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => bot.reply(message, "ding the bell"));
+controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => {
+    helpers.dingthebell(bot, message)
+});
 
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
@@ -369,7 +371,9 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
 
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-    if (new Date().getDay > 5) { bot.reply(message, "No lunch on weekends, brah"); }
+    if (new Date().getDay > 5) {
+        bot.reply(message, "No lunch on weekends, brah");
+    }
 
     request('https://dep.m-eating.no/kantine/index.php?get_unit_id=4', function (error, response, body) {
         if (!error && response.statusCode == 200) {
@@ -377,9 +381,13 @@ controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bo
 
             function GetFoodInfo(foodNr) {
                 var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
-                if (!foodNode.length || !foodNode.children().length) { return null }
+                if (!foodNode.length || !foodNode.children().length) {
+                    return null
+                }
                 var foodInfo = []
-                foodNode.children().each(function (i, e) { foodInfo[i] = $(this).text() });
+                foodNode.children().each(function (i, e) {
+                    foodInfo[i] = $(this).text()
+                });
                 foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
                 return foodInfo
             }
