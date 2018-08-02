@@ -200,7 +200,7 @@ controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) 
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
 
 // Smash Like
-controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => bot.reply(message, "Ding the bell!"));
+controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => bot.reply(message, "ding the bell"));
 
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
