@@ -1,39 +1,39 @@
 //=============================================
 // BENDER the Pzl Slack bot
-// Last updated 05.07.2017 by @damsleth
+// Last updated 30.08.2018 by @damsleth
 //===========================================
 
 bender = `
 
-            i@di      
-             @CR       
-             @SC       
-             RSC      
-             @KCi      
-             #KC7i     
-             RSCQ@i     
-            @%GC(CC7Q/  
-          #@K%C6QKCCCCC6@            
-       (@%CC3%C3CCCC%CCCC6Q          
+            i@di
+             @CR
+             @SC
+             RSC
+             @KCi
+             #KC7i
+             RSCQ@i
+            @%GC(CC7Q/
+          #@K%C6QKCCCCC6@
+       (@%CC3%C3CCCC%CCCC6Q
       GCCCC%C3CCCC66CCCsCCC@
-     @6%CCCCCOC6CCCsCCC66O%s@     
-     sCCC666CCCCC6%CCCC%CCsRG%#7     
-     C6%C63CRQGC3C77CC%7(t((t((7Q^   
-     sC3CC@C((CCt((7QG#K#@@@@@@@@G7Q 
+     @6%CCCCCOC6CCCsCCC66O%s@
+     sCCC666CCCCC6%CCCC%CCsRG%#7
+     C6%C63CRQGC3C77CC%7(t((t((7Q^
+     sC3CC@C((CCt((7QG#K#@@@@@@@@G7Q
      S6CCO#(t((@%/%O@@@@@@O(//R@@sCC
-     QsCC6stCC(%@        RC      @@s@            
-     @OCCC%((CC%R/       QC      @@7@       
-     @s3CCCQC(CCt%%GQRQQQ##QGCG((7R    
-     Gs6C6CCCCCCCCCCCCs6CC6CsssC3       
-     /@CCC3Cs3GSQQQ#CCQRGQS@ss@Q       
-      @3%C@@(@///%///(((((((()          
-      @CCCCOR/(@(O%O%%((((((()       
-      GCCCCs@%(@///%////(((()         
-      CCCCCCG@(@%%CQ%%%%O(/#C        
-      sC3C%CCCCGGQQ#QQGGG6CC#@       
-    @((%@#3CC3CC%C3CC%CCCCsQC((Q7    
-  #Qt((t((7%Q#R@CCQK@Q#QG37((t((7@ 
-%7t((((t((((tt(((((((CC(t(tt(t((t((#C   
+     QsCC6stCC(%@        RC      @@s@
+     @OCCC%((CC%R/       QC      @@7@
+     @s3CCCQC(CCt%%GQRQQQ##QGCG((7R
+     Gs6C6CCCCCCCCCCCCs6CC6CsssC3
+     /@CCC3Cs3GSQQQ#CCQRGQS@ss@Q
+      @3%C@@(@///%///(((((((()
+      @CCCCOR/(@(O%O%%((((((()
+      GCCCCs@%(@///%////(((()
+      CCCCCCG@(@%%CQ%%%%O(/#C
+      sC3C%CCCCGGQQ#QQGGG6CC#@
+    @((%@#3CC3CC%C3CC%CCCCsQC((Q7
+  #Qt((t((7%Q#R@CCQK@Q#QG37((t((7@
+%7t((((t((((tt(((((((CC(t(tt(t((t((#C
 
 `;
 
@@ -58,6 +58,7 @@ var botkit = require('botkit'),
     legacy = require('./lib/legacy'),
     sharepoint = require('./lib/sharepoint'),
     search = require('./lib/search');
+tlf = require('./lib/tlf');
 
 var Wit = require('wit-js');
 var client = new Wit.Client({
@@ -87,7 +88,7 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 setInterval(() => http.get("http://pzlbot.herokuapp.com"), 300000);
 
 //=======================
-// CONFIG 
+// CONFIG
 //=======================
 
 var __config = {
@@ -129,7 +130,7 @@ controller.hears(['analyze (.*)'], __config.Listeners.All, function (bot, messag
 });
 
 //=======================
-// HELP 
+// HELP
 //=======================
 controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, `*BENDER THE IN-HOUSE PZLBOT*
@@ -154,6 +155,7 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 *slap* [user]: slap user
 *svada*: return some svada
 *tacocat*: TACOCAT!
+*tlf* [query] (m): Queries the 1881 white pages
 *uptime* (m): returns Bender's uptime
 *valg2017* (m): returns the election results
 *whoami*: Get current user info
@@ -161,14 +163,6 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 `);
 });
 
-//=======================
-// SHAREPOINT INTEGRATION
-//=======================
-// Create SPSite
-controller.hears(["new site (.*)", "create site (.*)", "Create-SPSite (.*)"], __config.Listeners.All, (bot, message) => sharepoint.createSPSite(bot, message));
-
-// Create CRM Lead
-controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"], __config.Listeners.All, (bot, message) => sharepoint.createCRMLead());
 
 
 // 8==============D
@@ -184,25 +178,27 @@ controller.hears(["whoami", "who am i", "_spPageContextInfo.CurrentUser"], __con
 // Who is "user, f.ex U03QK793X"
 controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, message) => helpers.getUserInfo(bot, message));
 
-// Currency exchange rate
-controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
-controller.hears(["IOTA", "IOT"], __config.Listeners.All, (bot, message) => message.text.length === 4 || message.text.length === 3 ? currency.getIOTA(bot, message) : null);
-
-controller.hears(["crypto (.*)"], __config.Listeners.All, (bot, message) => currency.getExchangeRateCMC(bot, message));
-
-controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) => helpers.setTopic(bot, message));
-
 //=======================
 //bot commands
 //=======================
+
+// Currency exchange rate
+controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
+
+// Current IOTA in USD
+controller.hears(["IOTA", "IOT"], __config.Listeners.All, (bot, message) => message.text.length === 4 || message.text.length === 3 ? currency.getIOTA(bot, message) : null);
+
+// Crypto exchange rate in USD
+controller.hears(["crypto (.*)"], __config.Listeners.All, (bot, message) => currency.getExchangeRateCMC(bot, message));
+
+// Set Channel topic (NOT WORKING)
+controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) => helpers.setTopic(bot, message));
 
 // Who's yo daddy?
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
 
 // Smash Like
-controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => {
-    helpers.dingthebell(bot, message)
-});
+controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => helpers.dingthebell(bot, message));
 
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
@@ -213,6 +209,9 @@ controller.hears(['tell me a joke', 'joke'], __config.Listeners.NonAmbient, (bot
 // Har mannen falt?
 controller.hears(['Mannen', 'mannen', 'Har mannen falt'], __config.Listeners.NonAmbient, (bot, message) => helpers.mannen(bot, message));
 
+// Phone book lookup
+controller.hears(['tlf (.*)'], __config.Listeners.NonAmbient, (bot, message) => tlf.tlfQuery(bot, message));
+
 // PostSecret
 controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Listeners.NonAmbient, (bot, message) => {
     var msg = message.match[1];
@@ -222,30 +221,6 @@ controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Lis
     console.log("Message: '" + msg + "' in channel: " + chn);
     bot.reply(message, `ps: ${msg}`);
 });
-
-//=======================
-// Jira integration
-// //=======================
-
-//Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], __config.Listeners.All, (bot, message) => jira.help(bot, message));
-
-// Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], __config.Listeners.All, (bot, message) => jira.createIssue(bot, message));
-
-// Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], __config.Listeners.All, (bot, message) => jira.findIssue(bot, message));
-
-// Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], __config.Listeners.All, (bot, message) => jira.transitionIssue(bot, message));
-
-//Comment on issue
-controller.hears(['jira comment (.*)'], __config.Listeners.All, (bot, message) => jira.commentOnIssue(bot, message));
-
-//=====================
-// END JIRA INTEGRATION
-//=====================
-
 
 //Call me "name"
 controller.hears(['call me (.*)', 'my name is (.*)'], __config.Listeners.NonAmbient, (bot, message) => legacy.callMe(controller, bot, message));
@@ -335,15 +310,13 @@ controller.hears(["GetChannelByName (.*)"], __config.Listeners.NonAmbient, (bot,
     }))
 });
 
+// Debug stuff, listing all users / channels
 controller.hears("GetAllChannels()", __config.Listeners.NonAmbient, (bot, message) => allChannels().then(all => bot.reply(message, JSON.stringify(all))));
 controller.hears("GetAllUsers()", __config.Listeners.NonAmbient, (bot, message) => allUsers().then(all => bot.reply(message, JSON.stringify(all))));
 
-// Nei / Jo - disabled because annoying
-//controller.hears("n(.*)i", __config.Listeners.NonAmbient, (bot, message) => (message.text.length === 3 || message.text.indexOf("nei") > -1) ? bot.reply(message, "Jo") : null);
-
 //SKAM
 controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
-    request('http://skam.p3.no', function (error, response, body) {
+    request(process.env.SKAM_URL, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
             var updates = $('.byline').text();
@@ -352,30 +325,11 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     });
 });
 
-//BLANK - TODO
-// controller.hears("BLANK", __config.Listeners.NonAmbient, (bot, message) => {
-//     request('http://blank.p3.no', function (error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//             var $ = cheerio.load(body);
-//             links = [].slice.call(body.querySelectorAll(".byline")).map(byline=>{
-//                 let a = byline.querySelector("a")
-//                 let allA = byline.querySelectorAll("a")
-//                 if(allA.length > 1){ return `${[].slice.call(allA)[1].innerText.trim()} - ${a.attributes.href.value}`}
-//                 else return `${a.innerText.trim()} - ${a.attributes.href.value}`
-//                 })
-//             var updates = $('.byline').text();
-//             bot.reply(message, "Siste BLANK-oppdateringer \n" + updates);
-//         }
-//     });
-// });
-
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-    if (new Date().getDay > 5) {
-        bot.reply(message, "No lunch on weekends, brah");
-    }
+    if (new Date().getDay > 5) bot.reply(message, "No lunch on weekends, brah");
 
-    request('https://dep.m-eating.no/kantine/index.php?get_unit_id=4', function (error, response, body) {
+    request(process.env.DSSMENU_URL, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
 
@@ -416,37 +370,6 @@ controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, m
     }
 });
 
-//AIBELMENU
-controller.hears(["AIBELMENU", "Aibel menu", "Aibel meny", "Aibel"], __config.Listeners.NonAmbient, (bot, message) => {
-    request('http://www.coor.no/serviceside-aibel/lunch-menu/', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var $ = cheerio.load(body);
-            var reply = "";
-            var daytrs = {
-                1: [1, 2, 3],
-                2: [4, 5, 6],
-                3: [7, 8, 9],
-                4: [10, 11, 12],
-                5: [13, 14, 15]
-            }
-            var trs = daytrs[new Date().getDay()]
-            var kantine = $(".kantine").each(function (i, k) {
-                kantineNr = i + 1;
-                title = $(k).find("p>strong").text();
-                reply += "\n\n" + title;
-                trs.forEach(function (tr) {
-                    var txt = $("#kantine" + kantineNr + " tr:nth-of-type(" + tr + ") td:nth-of-type(2)").text();
-                    if (txt.length > 1) {
-                        reply += "\n";
-                        reply += txt;
-                    }
-                });
-            })
-            bot.reply(message, "AIBEL KANTINEMENY FOR " + helpers.getDayName().toUpperCase() + " \n" + reply);
-        }
-    });
-});
-
 //Latest polls
 controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, "Hang on, fetching latest polls...");
@@ -478,6 +401,39 @@ controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
     }
     bot.reply(message, helpers.isItFriday());
 });
+
+//=======================
+// SHAREPOINT INTEGRATION - LEGACY AFTER ASPC 2017
+//=======================
+// Create SPSite
+controller.hears(["new site (.*)", "create site (.*)", "Create-SPSite (.*)"], __config.Listeners.All, (bot, message) => sharepoint.createSPSite(bot, message));
+
+// Create CRM Lead
+controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"], __config.Listeners.All, (bot, message) => sharepoint.createCRMLead());
+
+
+//=======================
+// Jira integration - LEGACY AFTER JIRA CLOUD BOT
+// //=======================
+
+//Syntax help
+controller.hears(['jira help', 'man jira', 'help jira'], __config.Listeners.All, (bot, message) => jira.help(bot, message));
+
+// Create issue
+controller.hears(['jira new (.*)', 'jira create (.*)'], __config.Listeners.All, (bot, message) => jira.createIssue(bot, message));
+
+// Find issue
+controller.hears(['jira get (.*)', 'jira find (.*)'], __config.Listeners.All, (bot, message) => jira.findIssue(bot, message));
+
+// Transition issue
+controller.hears(['jira set (.*)', 'jira transition (.*)'], __config.Listeners.All, (bot, message) => jira.transitionIssue(bot, message));
+
+//Comment on issue
+controller.hears(['jira comment (.*)'], __config.Listeners.All, (bot, message) => jira.commentOnIssue(bot, message));
+
+//=====================
+// END JIRA INTEGRATION
+//=====================
 
 //Say Hi
 controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hi!"));
