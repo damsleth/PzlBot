@@ -15,8 +15,10 @@
     "dotenv": "^4.0.0",
     "jira-client": "^4.2.0",
     "jsdom": "^11.8.0",
+    "jwt-simple": "^0.5.1",
     "node-fetch": "^1.7.3",
     "request": "^2.79.0",
+    "store": "^2.0.12",
     "wit-js": "0.0.1"
   },
   "engines": {
