@@ -10,16 +10,16 @@
   "license": "ISC",
   "dependencies": {
     "botkit": "latest",
-    "botkit-storage-mongo": "latest",
+    "botkit-storage-mongo": "^1.0.7",
     "cheerio": "latest",
     "dotenv": "latest",
     "jira-client": "latest",
     "jsdom": "latest",
-    "jwt-simple": "latest",
+    "jwt-simple": "^0.5.1",
     "node-fetch": "latest",
-    "request": "latest",
-    "store": "latest",
-    "wit-js": "latest"
+    "request": "^2.88.0",
+    "store": "^2.0.12",
+    "wit-js": "^0.0.1"
   },
   "engines": {
     "node": "8.11.4"
