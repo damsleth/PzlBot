@@ -1,6 +1,6 @@
 {
   "name": "bender_the_pzlbot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "bot.js",
   "scripts": {
@@ -9,19 +9,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "botkit": "^0.5.8",
-    "botkit-storage-mongo": "^1.0.7",
-    "cheerio": "^0.22.0",
-    "dotenv": "^4.0.0",
-    "jira-client": "^4.2.0",
-    "jsdom": "^11.8.0",
-    "jwt-simple": "^0.5.1",
-    "node-fetch": "^1.7.3",
-    "request": "^2.79.0",
-    "store": "^2.0.12",
-    "wit-js": "0.0.1"
+    "botkit": "latest",
+    "botkit-storage-mongo": "latest",
+    "cheerio": "latest",
+    "dotenv": "latest",
+    "jira-client": "latest",
+    "jsdom": "latest",
+    "jwt-simple": "latest",
+    "node-fetch": "latest",
+    "request": "latest",
+    "store": "latest",
+    "wit-js": "latest"
   },
   "engines": {
-    "node": "7.6.0"
+    "node": "8.11.4"
   }
 }
