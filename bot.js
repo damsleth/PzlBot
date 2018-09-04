@@ -41,7 +41,6 @@ bender = `
 if (!process.env.SLACK_TOKEN) require('dotenv').config();
 
 var botkit = require('botkit'),
-    fs = require('fs'),
     cheerio = require('cheerio'),
     fetch = require('node-fetch'),
     request = require('request'),
