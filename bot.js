@@ -40,26 +40,30 @@ bender = `
 //Check if there's a slack token, if not, we're probably debugging, so load dotenv
 if (!process.env.SLACK_TOKEN) require('dotenv').config();
 
+    // NPM PACKAGES
 var botkit = require('botkit'),
     cheerio = require('cheerio'),
     fetch = require('node-fetch'),
     request = require('request'),
     os = require('os'),
     http = require('http'),
+    Wit = require('wit-js'),
+    // TOKENS
     slackToken = process.env.SLACK_TOKEN,
     witToken = process.env.WIT_SERVER_ACCESS_TOKEN,
-    helpers = require('./lib/helpers'),
-    wit = require('./lib/wit'),
+    // BOT LIB FUNCTIONS
     currency = require('./lib/currency'),
+    face = require('./lib/face'),
     fullcontact = require('./lib/fullcontact'),
+    helpers = require('./lib/helpers'),
     jira = require('./lib/jira'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
+    search = require('./lib/search'),
     sharepoint = require('./lib/sharepoint'),
-    search = require('./lib/search');
-tlf = require('./lib/tlf');
+    tlf = require('./lib/tlf'),
+    wit = require('./lib/wit');
 
-var Wit = require('wit-js');
 var client = new Wit.Client({
     apiToken: witToken
 });
@@ -97,7 +101,6 @@ var __config = {
     }
 }
 
-
 //=======================
 // GLOBAL HELPER METHODS
 //=======================
@@ -111,7 +114,6 @@ function allChannels() {
 function allUsers() {
     return fetch(`https://slack.com/api/users.list?token=${slackToken}`).then(j => j.json().then(users => users.members.filter(user => user.deleted === false)));
 }
-
 
 //========================
 // WIT.AI INTEGRATION - WIT-JS
@@ -139,6 +141,7 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 *craps*: play craps
 *dice*: throw dice
 *dsssmenu* (m): returns today's cantina menu in the government quarters
+*face* [image url] (m): Returns face analysis of the image at the specified URL
 *fullcontact* [email] (m): returns info on the specified email address from the fullcontact api
 *giphy* [keyword] (m): returns a gif with the specified keyword
 *guid* (m): generate a fresh guid
@@ -180,6 +183,9 @@ controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, me
 //=======================
 //bot commands
 //=======================
+
+// Facial analysis
+controller.hears(["face (.*)"], __config.Listeners.NonAmbient, (bot, message) => face.analyze(bot, message))
 
 // Currency exchange rate
 controller.hears(["currency (.*) in (.*)", "exhange rate for (.*) (.*)", "convert (.*) to (.*)", "how much is (.*) in (.*)"], __config.Listeners.NonAmbient, (bot, message) => currency.getExchangeRate(bot, message));
