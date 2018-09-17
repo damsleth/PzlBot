@@ -40,7 +40,7 @@ bender = `
 //Check if there's a slack token, if not, we're probably debugging, so load dotenv
 if (!process.env.SLACK_TOKEN) require('dotenv').config();
 
-    // NPM PACKAGES
+// NPM PACKAGES
 var botkit = require('botkit'),
     cheerio = require('cheerio'),
     fetch = require('node-fetch'),
@@ -332,14 +332,18 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
 
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-    if (new Date().getDay > 5) bot.reply(message, "No lunch on weekends, brah");
+    var day = new Date().getDay();
+    var dayOne = day + 1;
+    if (day > 5) bot.reply(message, "No lunch on weekends, brah");
 
     request(process.env.DSSMENU_URL, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var $ = cheerio.load(body);
 
             function GetFoodInfo(foodNr) {
-                var foodNode = $(`.meny table tr:nth-of-type(${foodNr}) td:nth-of-type(${new Date().getDay() + 1})`)
+                var foodNode =
+                    $(`.meny table:nth-of-type(1) tr:nth-of-type(${foodNr[0]}) td:nth-of-type(${dayOne}),
+                    .meny table:nth-of-type(1) tr:nth-of-type(${foodNr[1]}) td:nth-of-type(${dayOne})`)
                 if (!foodNode.length || !foodNode.children().length) {
                     return null
                 }
@@ -351,9 +355,9 @@ controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bo
                 return foodInfo
             }
 
-            var suppe = `*Suppe:* ${GetFoodInfo(2)}`
-            var varmmat = `*Varmmat:* ${GetFoodInfo(3)}`
-            var menu = suppe + "\n" + varmmat
+            var suppe = "*Suppe:* \n" + GetFoodInfo([2, 3]);
+            var varmmat = "*Varmmat:* \n" + GetFoodInfo([4, 5]);
+            var menu = suppe + "\n\n" + varmmat
             bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
