@@ -1,6 +1,6 @@
 //=============================================
 // BENDER the Pzl Slack bot
-// Last updated 30.08.2018 by @damsleth
+// Last updated 13.09.2018 by @damsleth
 //===========================================
 
 bender = `
