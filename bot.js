@@ -69,8 +69,8 @@ var client = new Wit.Client({
 });
 
 var mongoStorage = require('botkit-storage-mongo')({
-        mongoUri: process.env.MONGOURI
-    }),
+    mongoUri: process.env.MONGOURI
+}),
     controller = botkit.slackbot({
         debug: false,
         storage: mongoStorage
@@ -80,11 +80,11 @@ var mongoStorage = require('botkit-storage-mongo')({
     });
 
 //Start Slack RTM
-bot.startRTM(function (err, bot, payload) {});
+bot.startRTM(function (err, bot, payload) { });
 
 //Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, () => {})
+    controller.createWebhookEndpoints(webserver, bot, () => { })
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
@@ -403,10 +403,18 @@ controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) =>
     bot.reply(message, "Hey " + userToInsult + ", you" + badname + ". <@" + message.user + "> sends his regards.")
 });
 
-// Is it friday?
+// "Is it friday?" legacy
+// controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
+//     if (helpers.isItFriday(true)) {
+//         helpers.giphy("friday", bot, message);
+//     }
+//     bot.reply(message, helpers.isItFriday());
+// });
+
+// Is it friday, Sabeltann edition
 controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
     if (helpers.isItFriday(true)) {
-        helpers.giphy("friday", bot, message);
+        helpers.uploadFile(bot, message, "https://i.imgur.com/WHIdS3J.gif", "TACO");
     }
     bot.reply(message, helpers.isItFriday());
 });
