@@ -186,7 +186,7 @@ controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, me
 //=======================
 
 // Alternaliv
-controller.hears(["Alternaliv (.*), (.*)"], __config.Listeners.NonAmbient, (bot, message) => alternaliv.get(bot, message))
+controller.hears(["Alternaliv (.*), (.*)"], __config.Listeners.All, (bot, message) => alternaliv.get(bot, message))
 
 // Facial analysis
 controller.hears(["face (.*)"], __config.Listeners.NonAmbient, (bot, message) => face.analyze(bot, message))
