@@ -52,6 +52,7 @@ var botkit = require('botkit'),
     slackToken = process.env.SLACK_TOKEN,
     witToken = process.env.WIT_SERVER_ACCESS_TOKEN,
     // BOT LIB FUNCTIONS
+    alternaliv = require('./lib/alternaliv'),
     currency = require('./lib/currency'),
     face = require('./lib/face'),
     fullcontact = require('./lib/fullcontact'),
@@ -183,6 +184,9 @@ controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, me
 //=======================
 //bot commands
 //=======================
+
+// Alternaliv
+controller.hears(["Alternaliv (.*), (.*)"], __config.Listeners.NonAmbient, (bot, message) => alternaliv.get(bot, message))
 
 // Facial analysis
 controller.hears(["face (.*)"], __config.Listeners.NonAmbient, (bot, message) => face.analyze(bot, message))
