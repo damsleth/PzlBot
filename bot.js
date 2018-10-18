@@ -1,6 +1,6 @@
 //=============================================
 // BENDER the Pzl Slack bot
-// Last updated 13.09.2018 by @damsleth
+// Last updated 18.10.2018 by @damsleth
 //===========================================
 
 bender = `
@@ -58,6 +58,7 @@ var botkit = require('botkit'),
     fullcontact = require('./lib/fullcontact'),
     helpers = require('./lib/helpers'),
     jira = require('./lib/jira'),
+    movie = require('./lib/movie'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
     search = require('./lib/search'),
@@ -211,6 +212,9 @@ controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => helpe
 
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
+
+// IMDB
+controller.hears(['IMDB (.*)', 'movie (.*)', 'imdb (.*)'], __config.Listeners.NonAmbient, (bot, message) => movie.get(bot, message));
 
 // Jokes
 controller.hears(['tell me a joke', 'joke'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, jokes.getJoke()));

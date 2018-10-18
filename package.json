@@ -13,6 +13,7 @@
     "botkit-storage-mongo": "^1.0.7",
     "cheerio": "latest",
     "dotenv": "latest",
+    "imdb-api": "^4.0.2",
     "jira-client": "latest",
     "jsdom": "latest",
     "jwt-simple": "^0.5.1",
