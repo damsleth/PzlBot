@@ -213,6 +213,9 @@ controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => helpe
 // Over 9000
 controller.hears([" 9001"], __config.Listeners.All, (bot, message) => helpers.overninethousand(bot, message));
 
+// Verdens minste fiolin
+controller.hears(["verdens minste fiolin"], __config.Listeners.All, (bot, message) => helpers.violin(bot, message));
+
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
 
