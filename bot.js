@@ -210,6 +210,9 @@ controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is y
 // Smash Like
 controller.hears(["Smash like"], __config.Listeners.All, (bot, message) => helpers.dingthebell(bot, message));
 
+// Over 9000
+controller.hears([" 9001"], __config.Listeners.All, (bot, message) => helpers.overninethousand(bot, message));
+
 // 8 ball
 controller.hears(['8ball', '8-ball', '8 ball', 'eightball', 'eight ball'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, helpers.eightBall()));
 
