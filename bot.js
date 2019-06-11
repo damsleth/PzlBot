@@ -3,7 +3,7 @@
 // Last updated 18.10.2018 by @damsleth
 //===========================================
 
-var bender = `
+bender = `
 
             i@di
              @CR
@@ -74,7 +74,13 @@ var client = new Wit.Client({
 var mongoStorage = require('botkit-storage-mongo')({
     mongoUri: process.env.MONGOURI
 }),
-    controller = botkit.slackbot({ debug: false, storage: mongoStorage }), bot = controller.spawn({ token: slackToken });
+    controller = botkit.slackbot({
+        debug: false,
+        storage: mongoStorage
+    }),
+    bot = controller.spawn({
+        token: slackToken
+    });
 
 //Start Slack RTM
 bot.startRTM(function (err, bot, payload) { });
