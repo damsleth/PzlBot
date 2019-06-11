@@ -27,3 +27,5 @@ Right now he can
 * Currency conversion, including cryptocurrencies
 * Do some simple sentiment analysis using wit.ai
 * Search Google for you
+
+## Installation

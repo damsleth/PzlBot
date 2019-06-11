@@ -61,6 +61,7 @@ var botkit = require('botkit'),
     movie = require('./lib/movie'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
+    pollen = require('./lib/pollen'),
     search = require('./lib/search'),
     sharepoint = require('./lib/sharepoint'),
     tlf = require('./lib/tlf'),
@@ -86,7 +87,7 @@ bot.startRTM(function (err, bot, payload) { });
 
 //Prepare the webhook
 controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, () => { })
+    controller.createWebhookEndpoints(webserver, bot["token"])
 });
 
 //Keepalive, else the dyno will fall asleep after some minutes.
@@ -185,6 +186,9 @@ controller.hears(["whois (.*)", "who is (.*)"], __config.Listeners.All, (bot, me
 //=======================
 //bot commands
 //=======================
+
+// Pollen
+controller.hears(["Pollen"], __config.Listeners.NonAmbient, (bot, message) => pollen.get(bot, message))
 
 // Alternaliv
 controller.hears(["Alternaliv (.*), (.*)"], __config.Listeners.All, (bot, message) => alternaliv.get(bot, message))
