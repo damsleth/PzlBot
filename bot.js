@@ -86,7 +86,7 @@ var mongoStorage = require('botkit-storage-mongo')({
 bot.startRTM(function (err, bot, payload) { });
 
 //Prepare the webhook
-controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
+controller.setupWebserver(3001, function (err, webserver) {
     controller.createWebhookEndpoints(webserver, bot["token"])
 });
 
