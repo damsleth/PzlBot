@@ -350,33 +350,50 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
 
 //DSSMENU
 controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-    var day = new Date().getDay();
-    var dayOne = day + 1;
-    if (day > 5) bot.reply(message, "No lunch on weekends, brah");
+    var R5Id = "4";
+    var A64Id = "5";
+    var day = new Date().getDay() + 1;
+    if (day > 6) bot.reply(message, "No lunch on weekends, bruh");
 
-    request(process.env.DSSMENU_URL, function (error, response, body) {
+    function GetFoodInfo(foodNr, body) {
+        var $ = cheerio.load(body);
+        var foodNode =
+            $(`.meny table:nth-of-type(1) tr:nth-of-type(${foodNr[0]}) td:nth-of-type(${day}),
+            .meny table:nth-of-type(1) tr:nth-of-type(${foodNr[1]}) td:nth-of-type(${day})`)
+        if (!foodNode.length || !foodNode.children().length) {
+            return null
+        }
+        var foodInfo = []
+        foodNode.children().each(function (i, e) {
+            foodInfo[i] = $(this).text()
+        });
+        foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
+        return foodInfo
+    }
+    // R5 is first choice
+    request(`${process.env.DSSMENU_URL}${R5Id}`, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            var $ = cheerio.load(body);
-
-            function GetFoodInfo(foodNr) {
-                var foodNode =
-                    $(`.meny table:nth-of-type(1) tr:nth-of-type(${foodNr[0]}) td:nth-of-type(${dayOne}),
-                    .meny table:nth-of-type(1) tr:nth-of-type(${foodNr[1]}) td:nth-of-type(${dayOne})`)
-                if (!foodNode.length || !foodNode.children().length) {
-                    return null
-                }
-                var foodInfo = []
-                foodNode.children().each(function (i, e) {
-                    foodInfo[i] = $(this).text()
+            console.log("got R5 food")
+            var suppe = GetFoodInfo([2, 3], body);
+            var varmmat = GetFoodInfo([4, 5], body);
+            var suppeStr = "*Suppe:* \n" + suppe;
+            var varmmatStr = "*Varmmat:* \n" + varmmat;
+            if (suppe !== null || varmmat !== null) {
+                var menu = suppeStr + "\n\n" + varmmatStr
+                bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
+            } else {
+                // A64 for backupF
+                request(`${process.env.DSSMENU_URL}${A64Id}`, function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        console.log("got A64 food")
+                        var suppe = "*Suppe:* \n" + GetFoodInfo([2, 666], body);
+                        var varmmat = "*Varmmat:* \n" + GetFoodInfo([3, 666], body);
+                        var pris = "*Pris varmmat:* \n" + GetFoodInfo([4, 666], body);
+                        var menu = suppe + "\n\n" + varmmat + "\n\n" + pris
+                        bot.reply(message, "_R5 ER STENGT_ (lunsj === null 🤷‍♂️ ) - MENY I A64 FOR " + helpers.getDayName().toUpperCase() + " \n\n" + menu);
+                    }
                 });
-                foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
-                return foodInfo
             }
-
-            var suppe = "*Suppe:* \n" + GetFoodInfo([2, 3]);
-            var varmmat = "*Varmmat:* \n" + GetFoodInfo([4, 5]);
-            var menu = suppe + "\n\n" + varmmat
-            bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
         }
     });
 });
