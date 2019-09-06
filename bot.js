@@ -142,7 +142,9 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 *Usage: [@bender] [command]* ((m) = requires @-mention of bender)
 
 *8ball [question]*: Magic 8-ball!
+*alternaliv* [name], [birthplace]: returns a fake obituary on the specified person 
 *craps*: play craps
+*currency* [amount] [currency1] in [currency2]: currency conversion
 *dice*: throw dice
 *dsssmenu* (m): returns today's cantina menu in the government quarters
 *face* [image url] (m): Returns face analysis of the image at the specified URL
@@ -152,7 +154,7 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 *insult* [user] (m): insult the specified user
 *is it friday* (m): checks if it really is friday
 *joke* (m): tell a joke
-*mannen* (m): checks if Mannen has fallen
+*mannen* (m): checks if Mannen has fallen - taken from the harmannenfalt-api
 *oljefondet*: returns the value of the gov.pension fund
 *postsecret* [message] , [channel] (m): posts a secret message on your behalf to the specified channel
 *pris* [query] (m): returns the lowest price of an item from prisjakt
@@ -163,9 +165,9 @@ controller.hears(["help", "-h", "--help", "what can you do", "commands", "usage"
 *tacocat*: TACOCAT!
 *tlf* [query] (m): Queries the 1881 white pages
 *uptime* (m): returns Bender's uptime
-*valg2017* (m): returns the election results
+*valg* [kommune] (m): returns the latest election results
 *whoami*: Get current user info
-*whois [username]*: Get a specific user's info
+*whois* [username]: Get a specific user's info
 `);
 });
 
