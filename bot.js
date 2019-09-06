@@ -54,6 +54,7 @@ var botkit = require('botkit'),
     // BOT LIB FUNCTIONS
     alternaliv = require('./lib/alternaliv'),
     currency = require('./lib/currency'),
+    election = require('./lib/election'),
     face = require('./lib/face'),
     fullcontact = require('./lib/fullcontact'),
     helpers = require('./lib/helpers'),
@@ -414,10 +415,20 @@ controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, m
     }
 });
 
-//Latest polls
+//Latest polls - NOT  IN USE
 controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], __config.Listeners.NonAmbient, (bot, message) => {
     bot.reply(message, "Hang on, fetching latest polls...");
     helpers.getAveragePoll(bot, message);
+});
+
+//Latest kommunevalg polls
+controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
+    if(!message.match[1]){
+        bot.reply(message, "No kommune specified, fetching latest kommunevalg poll results for 'Hele landet'");
+        election.get(bot,`${message} hele landet`)
+    } 
+    bot.reply(message, "Hang on, fetching latest kommunevalg polls...");
+    election.get(bot, message);
 });
 
 //Prisjakt
