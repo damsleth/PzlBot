@@ -418,10 +418,10 @@ controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, m
 });
 
 //Latest polls - NOT  IN USE
-controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], __config.Listeners.NonAmbient, (bot, message) => {
-    bot.reply(message, "Hang on, fetching latest polls...");
-    helpers.getAveragePoll(bot, message);
-});
+// controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], __config.Listeners.NonAmbient, (bot, message) => {
+//     bot.reply(message, "Hang on, fetching latest polls...");
+//     helpers.getAveragePoll(bot, message);
+// });
 
 //Latest kommunevalg polls
 controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
@@ -429,7 +429,7 @@ controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbien
         bot.reply(message, "No kommune specified, fetching latest kommunevalg poll results for 'Hele landet'");
         election.get(bot,`${message} hele landet`)
     } 
-    bot.reply(message, "Hang on, fetching latest kommunevalg polls...");
+    // bot.reply(message, "Hang on, fetching latest kommunevalg polls...");
     election.get(bot, message);
 });
 
