@@ -347,60 +347,6 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     });
 });
 
-controller.hears(["DSSMENU", "menu", "meny", "R5"], __config.Listeners.NonAmbient, (bot, message) => {
-    lunch.get(bot, message)
-});
-
-//DSSMENU LEGACY
-// controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-//     var R5Id = "4";
-//     var A64Id = "5";
-//     var day = new Date().getDay() + 1;
-//     if (day > 6) bot.reply(message, "No lunch on weekends, bruh");
-
-//     function GetFoodInfo(foodNr, body) {
-//         var $ = cheerio.load(body);
-//         var foodNode =
-//             $(`.meny table:nth-of-type(1) tr:nth-of-type(${foodNr[0]}) td:nth-of-type(${day}),
-//             .meny table:nth-of-type(1) tr:nth-of-type(${foodNr[1]}) td:nth-of-type(${day})`)
-//         if (!foodNode.length || !foodNode.children().length) {
-//             return null
-//         }
-//         var foodInfo = []
-//         foodNode.children().each(function (i, e) {
-//             foodInfo[i] = $(this).text()
-//         });
-//         foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
-//         return foodInfo
-//     }
-//     // R5 is first choice
-//     request(`${process.env.DSSMENU_URL}${R5Id}`, function (error, response, body) {
-//         if (!error && response.statusCode == 200) {
-//             console.log("got R5 food")
-//             var suppe = GetFoodInfo([2, 3], body);
-//             var varmmat = GetFoodInfo([4, 5], body);
-//             var suppeStr = "*Suppe:* \n" + suppe;
-//             var varmmatStr = "*Varmmat:* \n" + varmmat;
-//             if (suppe !== null || varmmat !== null) {
-//                 var menu = suppeStr + "\n\n" + varmmatStr
-//                 bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
-//             } else {
-//                 // A64 for backupF
-//                 request(`${process.env.DSSMENU_URL}${A64Id}`, function (error, response, body) {
-//                     if (!error && response.statusCode == 200) {
-//                         console.log("got A64 food")
-//                         var suppe = "*Suppe:* \n" + GetFoodInfo([2, 666], body);
-//                         var varmmat = "*Varmmat:* \n" + GetFoodInfo([3, 666], body);
-//                         var pris = "*Pris varmmat:* \n" + GetFoodInfo([4, 666], body);
-//                         var menu = suppe + "\n\n" + varmmat + "\n\n" + pris
-//                         bot.reply(message, "_R5 ER STENGT_ (lunsj === null 🤷‍♂️ ) - MENY I A64 FOR " + helpers.getDayName().toUpperCase() + " \n\n" + menu);
-//                     }
-//                 });
-//             }
-//         }
-//     });
-// });
-
 // FULLCONTACT info retrieval - gets info on an email address or domain
 controller.hears("fullcontact (.*)", __config.Listeners.NonAmbient, (bot, message) => {
     if (message.match[1]) {
@@ -419,12 +365,11 @@ controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, m
 
 //Latest kommunevalg polls
 controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
-    if (!message.match[1]) {
-        bot.reply(message, "No kommune specified, fetching latest kommunevalg poll results for 'Hele landet'");
-        election.get(bot, `${message} hele landet`)
-    }
-    // bot.reply(message, "Hang on, fetching latest kommunevalg polls...");
     election.get(bot, message);
+});
+
+controller.hears(["kantine","dsskantine","dssmenu","menu","DSSMenu","Kantine","Menu"], __config.Listeners.NonAmbient, (bot, message) => {
+    lunch.get(bot, message);
 });
 
 //Prisjakt
