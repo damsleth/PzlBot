@@ -58,13 +58,12 @@ var botkit = require('botkit'),
     face = require('./lib/face'),
     fullcontact = require('./lib/fullcontact'),
     helpers = require('./lib/helpers'),
-    jira = require('./lib/jira'),
-    movie = require('./lib/movie'),
     jokes = require('./lib/jokes'),
     legacy = require('./lib/legacy'),
+    lunch = require('./lib/lunch'),
+    movie = require('./lib/movie'),
     pollen = require('./lib/pollen'),
     search = require('./lib/search'),
-    sharepoint = require('./lib/sharepoint'),
     tlf = require('./lib/tlf'),
     wit = require('./lib/wit');
 
@@ -208,9 +207,6 @@ controller.hears(["IOTA", "IOT"], __config.Listeners.All, (bot, message) => mess
 // Crypto exchange rate in USD
 controller.hears(["crypto (.*)"], __config.Listeners.All, (bot, message) => currency.getExchangeRateCMC(bot, message));
 
-// Set Channel topic (NOT WORKING)
-controller.hears("SetTopic (.*)", __config.Listeners.NonAmbient, (bot, message) => helpers.setTopic(bot, message));
-
 // Who's yo daddy?
 controller.hears(["Who's yo daddy", "Who owns you", "whos your daddy", "who is your daddy", "who's your daddy"], __config.Listeners.All, (bot, message) => bot.reply(message, "Kimzter is!"));
 
@@ -351,55 +347,59 @@ controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
     });
 });
 
-//DSSMENU
-controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
-    var R5Id = "4";
-    var A64Id = "5";
-    var day = new Date().getDay() + 1;
-    if (day > 6) bot.reply(message, "No lunch on weekends, bruh");
-
-    function GetFoodInfo(foodNr, body) {
-        var $ = cheerio.load(body);
-        var foodNode =
-            $(`.meny table:nth-of-type(1) tr:nth-of-type(${foodNr[0]}) td:nth-of-type(${day}),
-            .meny table:nth-of-type(1) tr:nth-of-type(${foodNr[1]}) td:nth-of-type(${day})`)
-        if (!foodNode.length || !foodNode.children().length) {
-            return null
-        }
-        var foodInfo = []
-        foodNode.children().each(function (i, e) {
-            foodInfo[i] = $(this).text()
-        });
-        foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
-        return foodInfo
-    }
-    // R5 is first choice
-    request(`${process.env.DSSMENU_URL}${R5Id}`, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            console.log("got R5 food")
-            var suppe = GetFoodInfo([2, 3], body);
-            var varmmat = GetFoodInfo([4, 5], body);
-            var suppeStr = "*Suppe:* \n" + suppe;
-            var varmmatStr = "*Varmmat:* \n" + varmmat;
-            if (suppe !== null || varmmat !== null) {
-                var menu = suppeStr + "\n\n" + varmmatStr
-                bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
-            } else {
-                // A64 for backupF
-                request(`${process.env.DSSMENU_URL}${A64Id}`, function (error, response, body) {
-                    if (!error && response.statusCode == 200) {
-                        console.log("got A64 food")
-                        var suppe = "*Suppe:* \n" + GetFoodInfo([2, 666], body);
-                        var varmmat = "*Varmmat:* \n" + GetFoodInfo([3, 666], body);
-                        var pris = "*Pris varmmat:* \n" + GetFoodInfo([4, 666], body);
-                        var menu = suppe + "\n\n" + varmmat + "\n\n" + pris
-                        bot.reply(message, "_R5 ER STENGT_ (lunsj === null 🤷‍♂️ ) - MENY I A64 FOR " + helpers.getDayName().toUpperCase() + " \n\n" + menu);
-                    }
-                });
-            }
-        }
-    });
+controller.hears(["DSSMENU", "menu", "meny", "R5"], __config.Listeners.NonAmbient, (bot, message) => {
+    lunch.get(bot, message)
 });
+
+//DSSMENU LEGACY
+// controller.hears(["DSSMENU", "menu", "meny"], __config.Listeners.NonAmbient, (bot, message) => {
+//     var R5Id = "4";
+//     var A64Id = "5";
+//     var day = new Date().getDay() + 1;
+//     if (day > 6) bot.reply(message, "No lunch on weekends, bruh");
+
+//     function GetFoodInfo(foodNr, body) {
+//         var $ = cheerio.load(body);
+//         var foodNode =
+//             $(`.meny table:nth-of-type(1) tr:nth-of-type(${foodNr[0]}) td:nth-of-type(${day}),
+//             .meny table:nth-of-type(1) tr:nth-of-type(${foodNr[1]}) td:nth-of-type(${day})`)
+//         if (!foodNode.length || !foodNode.children().length) {
+//             return null
+//         }
+//         var foodInfo = []
+//         foodNode.children().each(function (i, e) {
+//             foodInfo[i] = $(this).text()
+//         });
+//         foodInfo = foodInfo.map(e => e.trim()).filter(f => f.length).join("\n")
+//         return foodInfo
+//     }
+//     // R5 is first choice
+//     request(`${process.env.DSSMENU_URL}${R5Id}`, function (error, response, body) {
+//         if (!error && response.statusCode == 200) {
+//             console.log("got R5 food")
+//             var suppe = GetFoodInfo([2, 3], body);
+//             var varmmat = GetFoodInfo([4, 5], body);
+//             var suppeStr = "*Suppe:* \n" + suppe;
+//             var varmmatStr = "*Varmmat:* \n" + varmmat;
+//             if (suppe !== null || varmmat !== null) {
+//                 var menu = suppeStr + "\n\n" + varmmatStr
+//                 bot.reply(message, "MENY FOR " + helpers.getDayName().toUpperCase() + " \n" + menu);
+//             } else {
+//                 // A64 for backupF
+//                 request(`${process.env.DSSMENU_URL}${A64Id}`, function (error, response, body) {
+//                     if (!error && response.statusCode == 200) {
+//                         console.log("got A64 food")
+//                         var suppe = "*Suppe:* \n" + GetFoodInfo([2, 666], body);
+//                         var varmmat = "*Varmmat:* \n" + GetFoodInfo([3, 666], body);
+//                         var pris = "*Pris varmmat:* \n" + GetFoodInfo([4, 666], body);
+//                         var menu = suppe + "\n\n" + varmmat + "\n\n" + pris
+//                         bot.reply(message, "_R5 ER STENGT_ (lunsj === null 🤷‍♂️ ) - MENY I A64 FOR " + helpers.getDayName().toUpperCase() + " \n\n" + menu);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// });
 
 // FULLCONTACT info retrieval - gets info on an email address or domain
 controller.hears("fullcontact (.*)", __config.Listeners.NonAmbient, (bot, message) => {
@@ -417,18 +417,12 @@ controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, m
     }
 });
 
-//Latest polls - NOT  IN USE
-// controller.hears(["polls", "valg2017", "valg 2017", "what are the poll numbers", "latest polls", "stortingsvalg", "heia Erna", "give me the latest numbers"], __config.Listeners.NonAmbient, (bot, message) => {
-//     bot.reply(message, "Hang on, fetching latest polls...");
-//     helpers.getAveragePoll(bot, message);
-// });
-
 //Latest kommunevalg polls
 controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
-    if(!message.match[1]){
+    if (!message.match[1]) {
         bot.reply(message, "No kommune specified, fetching latest kommunevalg poll results for 'Hele landet'");
-        election.get(bot,`${message} hele landet`)
-    } 
+        election.get(bot, `${message} hele landet`)
+    }
     // bot.reply(message, "Hang on, fetching latest kommunevalg polls...");
     election.get(bot, message);
 });
@@ -451,14 +445,6 @@ controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) =>
     bot.reply(message, "Hey " + userToInsult + ", you" + badname + ". <@" + message.user + "> sends his regards.")
 });
 
-// "Is it friday?" legacy
-// controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
-//     if (helpers.isItFriday(true)) {
-//         helpers.giphy("friday", bot, message);
-//     }
-//     bot.reply(message, helpers.isItFriday());
-// });
-
 // Is it friday, Sabeltann edition
 controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
     if (helpers.isItFriday(true)) {
@@ -466,39 +452,6 @@ controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
     }
     bot.reply(message, helpers.isItFriday());
 });
-
-//=======================
-// SHAREPOINT INTEGRATION - LEGACY AFTER ASPC 2017
-//=======================
-// Create SPSite
-controller.hears(["new site (.*)", "create site (.*)", "Create-SPSite (.*)"], __config.Listeners.All, (bot, message) => sharepoint.createSPSite(bot, message));
-
-// Create CRM Lead
-controller.hears(["create lead (.*)", "new lead (.*)", "new recruit (.*)", "Create-CRMLead (.*)", "new lead"], __config.Listeners.All, (bot, message) => sharepoint.createCRMLead());
-
-
-//=======================
-// Jira integration - LEGACY AFTER JIRA CLOUD BOT
-// //=======================
-
-//Syntax help
-controller.hears(['jira help', 'man jira', 'help jira'], __config.Listeners.All, (bot, message) => jira.help(bot, message));
-
-// Create issue
-controller.hears(['jira new (.*)', 'jira create (.*)'], __config.Listeners.All, (bot, message) => jira.createIssue(bot, message));
-
-// Find issue
-controller.hears(['jira get (.*)', 'jira find (.*)'], __config.Listeners.All, (bot, message) => jira.findIssue(bot, message));
-
-// Transition issue
-controller.hears(['jira set (.*)', 'jira transition (.*)'], __config.Listeners.All, (bot, message) => jira.transitionIssue(bot, message));
-
-//Comment on issue
-controller.hears(['jira comment (.*)'], __config.Listeners.All, (bot, message) => jira.commentOnIssue(bot, message));
-
-//=====================
-// END JIRA INTEGRATION
-//=====================
 
 //Say Hi
 controller.hears(['hello', 'hey', 'hi', 'hei', 'yo', 'sup', 'wassup', 'hola'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hi!"));
