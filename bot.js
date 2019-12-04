@@ -59,6 +59,7 @@ var botkit = require('botkit'),
     fullcontact = require('./lib/fullcontact'),
     helpers = require('./lib/helpers'),
     jokes = require('./lib/jokes'),
+    jul2019 = require('./lib/jul2019'),
     legacy = require('./lib/legacy'),
     lunch = require('./lib/lunch'),
     movie = require('./lib/movie'),
@@ -314,6 +315,9 @@ controller.hears("batteries", __config.Listeners.All, (bot, message) => bot.repl
 //TACOCAT
 controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], __config.Listeners.All, (bot, message) => bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:"));
 
+// kode24 Julekalender 2019 
+controller.hears(["jul2019", "kodekalender"], __config.Listeners.NonAmbient, (bot, message) => jul2019.getTeams(bot, message));
+
 //OLJEFONDET
 controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], __config.Listeners.All, (bot, message) => helpers.nbim(bot, message));
 
@@ -368,7 +372,7 @@ controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbien
     election.get(bot, message);
 });
 
-controller.hears(["kantine","dsskantine","dssmenu","menu","DSSMenu","Kantine","Menu"], __config.Listeners.NonAmbient, (bot, message) => {
+controller.hears(["kantine", "dsskantine", "dssmenu", "menu", "DSSMenu", "Kantine", "Menu"], __config.Listeners.NonAmbient, (bot, message) => {
     lunch.get(bot, message);
 });
 
