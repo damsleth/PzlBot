@@ -316,7 +316,7 @@ controller.hears("batteries", __config.Listeners.All, (bot, message) => bot.repl
 controller.hears(["tacocat", "taco cat", "TACOCAT", "TACO CAT"], __config.Listeners.All, (bot, message) => bot.reply(message, ":taco: :smile_cat:  *_TACOCAT_*  :smile_cat: :taco:"));
 
 // kode24 Julekalender 2019 
-controller.hears(["jul2019", "kodekalender","kode24"], __config.Listeners.NonAmbient, (bot, message) => jul2019.getTeams(bot, message));
+controller.hears(["jul2019 (.*) (.*)", "kodekalender (.*) (.*)","kode24 (.*) (.*)"], __config.Listeners.NonAmbient, (bot, message) => jul2019.getTeams(bot, message));
 
 //OLJEFONDET
 controller.hears(["oljefondet", "nbim", "cash money", "how rich am i", "pensjonsfondet"], __config.Listeners.All, (bot, message) => helpers.nbim(bot, message));
