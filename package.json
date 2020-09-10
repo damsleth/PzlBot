@@ -17,7 +17,7 @@
     "jira-client": "^6.7.1",
     "jsdom": "^15.1.1",
     "jwt-simple": "^0.5.6",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "puppeteer": "^1.15.0",
     "request": "^2.88.0",
     "store": "^2.0.12",
