@@ -233,7 +233,8 @@ controller.hears(['tell me a joke', 'joke'], __config.Listeners.NonAmbient, (bot
 controller.hears(['Mannen', 'mannen', 'Har mannen falt'], __config.Listeners.NonAmbient, (bot, message) => helpers.mannen(bot, message));
 
 // Phone book lookup
-controller.hears(['tlf (.*)'], __config.Listeners.NonAmbient, (bot, message) => tlf.tlfQuery(bot, message));
+// controller.hears(['tlf (.*)'], __config.Listeners.NonAmbient, (bot, message) => tlf.tlfQuery(bot, message));
+controller.hears(['tlf (.*)'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Sorry, tlf hook needs to be updated"))
 
 // PostSecret
 controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Listeners.NonAmbient, (bot, message) => {
@@ -368,7 +369,7 @@ controller.hears("fullcontactdebug (.*)", __config.Listeners.NonAmbient, (bot, m
 });
 
 //Latest kommunevalg polls
-controller.hears(["kommunevalg (.*)", "valg (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
+controller.hears(["kommunevalg (.*)", "valg (.*)","stortingsvalg"], __config.Listeners.NonAmbient, (bot, message) => {
     election.get(bot, message);
 });
 
