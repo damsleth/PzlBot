@@ -103,8 +103,7 @@ controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
 })
 
 //Keepalive, else the dyno will fall asleep after some minutes.
-// not used on netlify
-// setInterval(() => http.get("http://pzlbot.herokuapp.com"), 300000)
+setInterval(() => http.get("https://pzlbot.onrender.com"), 300000)
 
 //=======================
 // CONFIG
