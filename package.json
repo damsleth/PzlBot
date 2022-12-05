@@ -1,12 +1,12 @@
 {
   "name": "bender_the_pzlbot",
-  "version": "1.19.4",
+  "version": "1.22.12",
   "description": "",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
-  "author": "",
+  "author": "@damsleth",
   "license": "ISC",
   "dependencies": {
     "botkit": "0.7.4",
@@ -25,6 +25,6 @@
     "wit-js": "^0.0.1"
   },
   "engines": {
-    "node": "10.15.3"
+    "node": "14.18.12"
   }
 }
