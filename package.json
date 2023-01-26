@@ -21,7 +21,8 @@
     "request": "^2.88.0",
     "store": "^2.0.12",
     "streamifier": "^0.1.1",
-    "wit-js": "^0.0.1"
+    "wit-js": "^0.0.1",
+    "skills-validator": "./node_modules/botbuilder/skills-validator"
   },
   "engines": {
     "node": ">=16",
