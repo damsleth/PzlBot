@@ -9,7 +9,7 @@
   "author": "@damsleth",
   "license": "ISC",
   "dependencies": {
-    "botkit": "0.7.4",
+    "botkit": "^0.7.5",
     "botkit-storage-mongo": "^1.0.7",
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.0.0",
@@ -24,6 +24,7 @@
     "wit-js": "^0.0.1"
   },
   "engines": {
-    "node": "^16.8.1"
+    "node": ">=16",
+    "npm": ">8"
   }
 }
