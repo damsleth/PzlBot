@@ -4,8 +4,8 @@
   "description": "",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js",
-    "postinstall": "npm install --no-save ./node_modules/botbuilder/skills-validator"
+    "postinstall": "npm install ./node_modules/botbuilder/skills-validator",
+    "start": "node bot.js"
   },
   "author": "@damsleth",
   "license": "ISC",
