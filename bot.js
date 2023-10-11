@@ -59,10 +59,9 @@ var botkit = require('botkit'),
   fullcontact = require('./lib/fullcontact'),
   helpers = require('./lib/helpers'),
   jokes = require('./lib/jokes'),
-  jul2019 = require('./lib/jul2019'),
+  jul2019 = require('./lib/legacy/jul2019'),
   jul2022 = require('./lib/jul2022'),
-  legacy = require('./lib/legacy'),
-  lunch = require('./lib/lunch'),
+  lunch = require('./lib/legacy/lunch'),
   movie = require('./lib/movie'),
   pollen = require('./lib/pollen'),
   search = require('./lib/search'),
@@ -98,12 +97,12 @@ var bot = controller.spawn({
 bot.startRTM(function (err, bot, payload) { })
 
 //Prepare the webhook
-controller.setupWebserver(process.env.PORT || 3001, function (err, webserver) {
+controller.setupWebserver(process.env.PORT || 8080, function (err, webserver) {
   controller.createWebhookEndpoints(webserver, bot["token"])
 })
 
 //Keepalive, else the dyno will fall asleep after some minutes.
-setInterval(() => http.get("https://pzlbot.onrender.com"), 300000)
+// setInterval(() => http.get("NOT-IN-USE"), 300000)
 
 //=======================
 // CONFIG
@@ -257,14 +256,8 @@ controller.hears(['postsecret (.*),(.*)', 'postsecret (.*), (.*)'], __config.Lis
   bot.reply(message, `ps: ${msg}`)
 })
 
-//Call me "name"
-controller.hears(['call me (.*)', 'my name is (.*)'], __config.Listeners.NonAmbient, (bot, message) => legacy.callMe(controller, bot, message))
-
 //Google search
 controller.hears(['google (.*)', 'google (.*) params:(.*)'], __config.Listeners.NonAmbient, (bot, message) => search.getSearchResultsJSON(bot, message))
-
-//Return name from storage
-controller.hears(['what is my name', 'who am i', 'whats my name'], __config.Listeners.NonAmbient, (bot, message) => legacy.whatsMyName(controller, bot, message))
 
 //Uptime
 controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], __config.Listeners.NonAmbient, (bot, message) => {
@@ -275,9 +268,6 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
 
 //Slash commmand
 controller.on('slash_command', (bot, message) => bot.replyPublic(message, 'Everyone can see the results of this slash command'))
-
-//Order Pizza
-controller.hears(['pizzatime'], __config.Listeners.NonAmbient, (bot, message) => legacy.pizzatime(bot, message))
 
 //Reply to personal insults
 controller.hears(['fuck'], __config.Listeners.NonAmbient, (bot, message) => bot.reply(message, "Hey <@" + message.user + "> \n :fu:"))
@@ -355,17 +345,6 @@ controller.hears(["GetChannelByName (.*)"], __config.Listeners.NonAmbient, (bot,
 controller.hears("GetAllChannels()", __config.Listeners.NonAmbient, (bot, message) => allChannels().then(all => bot.reply(message, JSON.stringify(all))))
 controller.hears("GetAllUsers()", __config.Listeners.NonAmbient, (bot, message) => allUsers().then(all => bot.reply(message, JSON.stringify(all))))
 
-//SKAM
-controller.hears("SKAM", __config.Listeners.NonAmbient, (bot, message) => {
-  request(process.env.SKAM_URL, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var $ = cheerio.load(body)
-      var updates = $('.byline').text()
-      bot.reply(message, "Siste SKAM-oppdateringer \n" + updates)
-    }
-  })
-})
-
 // FULLCONTACT info retrieval - gets info on an email address or domain
 controller.hears("fullcontact (.*)", __config.Listeners.NonAmbient, (bot, message) => {
   if (message.match[1]) {
@@ -387,10 +366,6 @@ controller.hears(["kommunevalg (.*)", "valg (.*)", "stortingsvalg"], __config.Li
   election.get(bot, message)
 })
 
-controller.hears(["kantine", "dsskantine", "dssmenu", "menu", "DSSMenu", "Kantine", "Menu"], __config.Listeners.NonAmbient, (bot, message) => {
-  lunch.get(bot, message)
-})
-
 //Prisjakt
 controller.hears(["prisjakt (.*)", "pris (.*)", "get me the price on (.*)", "how much is (.*)"], __config.Listeners.NonAmbient, (bot, message) => {
   bot.reply(message, "Hang on, fetching prices...")
@@ -410,7 +385,7 @@ controller.hears('insult (.*)', __config.Listeners.NonAmbient, (bot, message) =>
 })
 
 // Is it friday, Sabeltann edition
-controller.hears(['is it friday'], __config.Listeners.All, (bot, message) => {
+controller.hears(['is it friday','er det fredag'], __config.Listeners.All, (bot, message) => {
   if (helpers.isItFriday(true)) {
     helpers.uploadFile(bot, message, "https://i.imgur.com/WHIdS3J.gif", "TACO")
   }
